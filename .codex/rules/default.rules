@@ -1,0 +1,44 @@
+# dist/codex shipped permission rules (Starlark) — .codex/rules/ is
+# Codex's NATIVE rules dir (this file), distinct from the AIDLC markdown rule
+# layers at .codex/aidlc-rules/ (D-10 rename).
+#
+# Bun copy-channel allowlist: AI-DLC's engine commands and its tool scripts.
+prefix_rule(pattern = ["bun", ".codex/tools/aidlc.ts", "engine"], decision = "allow")
+prefix_rule(pattern = ["bun", [
+    ".codex/tools/aidlc-attest.ts",
+    ".codex/tools/aidlc-audit.ts",
+    ".codex/tools/aidlc-bolt.ts",
+    ".codex/tools/aidlc-completions.ts",
+    ".codex/tools/aidlc-graph.ts",
+    ".codex/tools/aidlc-jump.ts",
+    ".codex/tools/aidlc-knowledge.ts",
+    ".codex/tools/aidlc-learnings.ts",
+    ".codex/tools/aidlc-log.ts",
+    ".codex/tools/aidlc-orchestrate.ts",
+    ".codex/tools/aidlc-plugin.ts",
+    ".codex/tools/aidlc-review-brief.ts",
+    ".codex/tools/aidlc-runner-gen.ts",
+    ".codex/tools/aidlc-runtime.ts",
+    ".codex/tools/aidlc-sensor-claim-sources.ts",
+    ".codex/tools/aidlc-sensor-linter.ts",
+    ".codex/tools/aidlc-sensor-required-sections.ts",
+    ".codex/tools/aidlc-sensor-traceability.ts",
+    ".codex/tools/aidlc-sensor-type-check.ts",
+    ".codex/tools/aidlc-sensor-upstream-coverage.ts",
+    ".codex/tools/aidlc-sensor.ts",
+    ".codex/tools/aidlc-state.ts",
+    ".codex/tools/aidlc-swarm.ts",
+    ".codex/tools/aidlc-testing-posture.ts",
+    ".codex/tools/aidlc-unit.ts",
+    ".codex/tools/aidlc-utility.ts",
+    ".codex/tools/aidlc-validate.ts",
+    ".codex/tools/aidlc-workspace-sync.ts",
+    ".codex/tools/aidlc-worktree.ts"
+]], decision = "allow")
+
+# Git allow-rules (S9d): workspace-write keeps .git read-only in-sandbox and
+# routes git writes through escalation; these prefix rules pre-approve the
+# retry-unsandboxed step so Bolt worktree/commit flows run friction-free.
+prefix_rule(pattern = ["git", "worktree"], decision = "allow")
+prefix_rule(pattern = ["git", "commit"], decision = "allow")
+prefix_rule(pattern = ["git", "add"], decision = "allow")
