@@ -1,0 +1,159 @@
+{
+  "stage": "nfr-design",
+  "unit": "u3-chatgpt-workflow",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR1.2",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR4.1",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR5.3",
+    "NFR5.4",
+    "NFR6.1",
+    "NFR6.2",
+    "NFR7.1",
+    "NFR7.2",
+    "NFR8.1",
+    "NFR8.2",
+    "NFR9.1",
+    "NFR9.2",
+    "NFR9.3",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR11.1",
+    "NFR11.2"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "security-design.md#sd3-03"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "security-design.md#sd3-03"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "security-design.md#sd3-02"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "security-design.md#sd3-01"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "security-design.md#sd3-02"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "security-design.md#sd3-02"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "security-design.md#sd3-03"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "security-design.md#sd3-04"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "security-design.md#sd3-09"
+    },
+    {
+      "id": "NFR5.3",
+      "status": "OK",
+      "target": "security-design.md#sd3-07"
+    },
+    {
+      "id": "NFR5.4",
+      "status": "OK",
+      "target": "security-design.md#sd3-12"
+    },
+    {
+      "id": "NFR6.1",
+      "status": "OK",
+      "target": "security-design.md#sd3-07"
+    },
+    {
+      "id": "NFR6.2",
+      "status": "OK",
+      "target": "security-design.md#sd3-07"
+    },
+    {
+      "id": "NFR7.1",
+      "status": "OK",
+      "target": "security-design.md#sd3-05"
+    },
+    {
+      "id": "NFR7.2",
+      "status": "OK",
+      "target": "security-design.md#sd3-14"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "security-design.md#sd3-13"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "security-design.md#sd3-01"
+    },
+    {
+      "id": "NFR9.1",
+      "status": "OK",
+      "target": "security-design.md#sd3-06"
+    },
+    {
+      "id": "NFR9.2",
+      "status": "OK",
+      "target": "security-design.md#sd3-08"
+    },
+    {
+      "id": "NFR9.3",
+      "status": "OK",
+      "target": "security-design.md#sd3-07"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "security-design.md#sd3-10"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "security-design.md#sd3-11"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "security-design.md#sd3-14"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "security-design.md#sd3-01"
+    },
+    {
+      "id": "NFR11.2",
+      "status": "OK",
+      "target": "security-design.md#sd3-15"
+    }
+  ],
+  "reverse": []
+}

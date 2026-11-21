@@ -1,0 +1,140 @@
+{
+  "stage": "nfr-design",
+  "unit": "u1-exchange-spec",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR1.2",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR5.3",
+    "NFR5.4",
+    "NFR5.5",
+    "NFR5.6",
+    "NFR6.1",
+    "NFR6.2",
+    "NFR7.1",
+    "NFR7.2",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-07--허용-출력과-민감성-불명-보류"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-02--유한-엄격-파싱과-불신-지시-격리"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-04--현재-정책과-요청-직전-동의-재확인"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-11--전체-계획단일-행위-선언과-독립-승인-경계"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-05--모든-실제-분석-경로의-동일-허용-집합"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-06--고정-withheld와-파생-공개-차단"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-04--현재-정책과-요청-직전-동의-재확인"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-07--허용-출력과-민감성-불명-보류"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-07--허용-출력과-민감성-불명-보류"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-01--불변-명세-묶음-선택"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-03--전체-내용-결합과-계보-충돌-보존"
+    },
+    {
+      "id": "NFR5.3",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-02--유한-엄격-파싱과-불신-지시-격리"
+    },
+    {
+      "id": "NFR5.4",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-03--전체-내용-결합과-계보-충돌-보존"
+    },
+    {
+      "id": "NFR5.5",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-10--분할-전달의-누락무효원천-완전성-분리"
+    },
+    {
+      "id": "NFR5.6",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-08--상태를-보존하는-정확한-십진계획-검사"
+    },
+    {
+      "id": "NFR6.1",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-09--기간dst와-출처별-시각-분리"
+    },
+    {
+      "id": "NFR6.2",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-09--기간dst와-출처별-시각-분리"
+    },
+    {
+      "id": "NFR7.1",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-12--생산자단계세션별-결과와-미확인-복구"
+    },
+    {
+      "id": "NFR7.2",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-13--고정-오류-분류와-안전한-한국어-조치"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-14--독립-부합-증거와-재현-범위-제한"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-12--생산자단계세션별-결과와-미확인-복구"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "security-design.md#u1-sd-14--독립-부합-증거와-재현-범위-제한"
+    }
+  ]
+}
