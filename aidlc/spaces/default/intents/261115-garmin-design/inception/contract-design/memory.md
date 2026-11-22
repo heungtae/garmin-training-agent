@@ -3,6 +3,8 @@
 
 ## Interpretations
 
+- 2026-11-21T21:30:58Z — 사용자의 리뷰 반영 요청에 따라 계약 초안의 반복소수 공백을 GTA-NUMERIC-1로 구체화했다. U1 소유의 정밀도·최종 HALF_EVEN·정확 합계·크기/양수 소실 오류·문자열 동등성과 공통 기대값 16개를 정하고 실제 계산 도구 적격성과 구분한다.
+
 - 2026-11-18T00:36:11Z — 사용자 변경에 따라 Ollama 사용을 제외하고 원격 OpenAI를 초기 검증 대상으로 유지했다. 기존 로컬/사설 연결 유형 P0는 대체 제공자 미정으로 남기며, 변경한 요약의 명시적 확인(c1e583e1)을 받은 후 계약 문서를 작성했다.
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 

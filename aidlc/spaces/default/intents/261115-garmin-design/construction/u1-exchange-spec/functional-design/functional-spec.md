@@ -47,7 +47,7 @@ U1은 Common과 C01~C08, 합성 교환 사례·호환 기준을 소유한다. �
 2. UTF-8 단일 JSON 객체를 엄격 파싱한다. 선두 단일 BOM·바깥 공백/CRLF는 허용하지만 문자열·불투명 ID는 보존한다. 중복 키·잘림·후행 JSON·NaN/Infinity·잘못된 UTF-8·루트 비객체는 DATA_INVALID다.
 3. 신뢰된 고정 registry에서 schemaVersion/문서종류를 선택하고 구조·필수/null·열거값·알 수 없는 필드를 검사한다. 모르는 extension은 `extensions.x_*` 문자열/null 형식만 구조상 허용하며 행동/권한에는 사용하지 않는다. C03/Detail의 초기 자유 확장 전송은 허용하지 않는다.
 4. 파싱한 **전체** JSON의 JCS UTF-8 SHA-256을 계산하고 ArtifactRef/C06의 정확한 대상·정책 digest와 대조한다. 안내·가정·extensions 변경도 새 내용이다. 원격 위치/버전과 JSON 내용 digest는 별도 값으로 유지한다.
-5. 필드 간 ID/버전·기간/시간대·단위·계산·출처·완전성 규칙을 적용한다. C03은 WF3/WF4, C05/C06은 WF5, C07은 WF6, C08은 WF7로 이어진다. 구조 통과만으로 의미·권한 검증을 생략하지 않는다.
+5. 필드 간 ID/버전·기간/시간대·단위·계산·출처·완전성 규칙을 적용한다. 수치는 [GTA-NUMERIC-1](../../../inception/contract-design/contract-summary.md#numeric-profile-v1)에 따라 정확 합계와 유리수 중간값을 유지하고 파생 속도/페이스만 최종 6자리 HALF_EVEN 정규형으로 비교한다. C03은 WF3/WF4, C05/C06은 WF5, C07은 WF6, C08은 WF7로 이어진다. 구조 통과만으로 의미·권한 검증을 생략하지 않는다.
 6. 검사 도중 원격 버전이 바뀌거나 같은 논리 버전에 다른 내용이 있으면 REMOTE_CONFLICT/CONTENT_MISMATCH로 보류하고 이전 유효본을 보존한다. 다른 문서/버전의 유효 세션을 골라 합친 완전본을 만들지 않는다.
 7. 실제 효과 직전에는 실행 소유자가 승인·안전·정책·철회·최신 계보를 다시 확인한다. U1의 한정 적합성 판정은 이 검증 호출이나 제품 권한을 생성하지 않는다.
 
@@ -179,7 +179,7 @@ U1은 Common과 C01~C08, 합성 교환 사례·호환 기준을 소유한다. �
 | FD05 | 일반 JCS 비ASCII 속성·보충 문자·수치 경계 및 잘못된 Unicode | 표준 정규화 기대를 별도 적합성으로 검증할 계획; 현재 한정 합성 결과로 통과 주장 불가 | BR1.2, BR7.4 |
 | FD06 | 허용된 distance=observed 0, missing/not_collected/not_applicable/estimated 각각 | 0과 비수치/추정 구별; estimated 근거 없으면 DATA_INVALID | BR2.1 |
 | FD07 | distance=0의 페이스·duration=0의 속도를 computed 수치로 작성 | 분모0은 not_applicable; 수치 NaN/Infinity는 거절 | BR2.2 |
-| FD08 | 무한소수 계산·단위 혼재·미확정 반올림 프로필 | 미확정 정밀도/계산 기준을 정상 검증 완료로 표시하지 않음 | BR2.2 |
+| FD08 | GTA-NUMERIC-1 NUM-01~16 및 근거/프로필 미확보·단위 혼재 | 반복소수/절반 반올림/정확 합계/크기/분모 0/양수 소실·원천 재계산은 고정 기대값과 일치; 근거 없음·상이 wire는 거절. 실제 도구 적격성은 별도 | BR2.2 |
 | FD09 | 윤일/월말/연말·시작 자정/끝 자정·서로 다른 오프셋 | 시작 포함·끝 제외 및 원 오프셋 보존; 시각·버전별 구분 | BR2.3, BR2.5 |
 | FD10 | DST 존재하지 않음/중복 시각·미확인 tzdbVersion | DATA_INVALID/DEPENDENCY_UNQUALIFIED; 자동 이동 금지 | BR2.3 |
 | FD11 | running/swimming/unknown 운동, 같은 이름/일자의 다른 ID | 종목별 유일 집계; unknown 유지·타 종목 성과 혼합 금지 | BR2.4, BR3.4 |
@@ -265,7 +265,7 @@ erDiagram
 | Garmin 공식 상세 계약·인증/지표/수정/페이지/한도 | P05 BLOCKED_CONTRACT_UNAVAILABLE 유지; U2가 근거 확보 후 설계/실증 |
 | 원격 OpenAI 모델/응답 품질·비용/유한 한도 | 초기 원격 대상만 선정; 모델/자원/유료 조건 미해소로 활성화 보류 |
 | 로컬/사설 OpenAI 호환 유형 | Ollama 제외. 대체 제공자/모델/API/처리 위치/하드웨어 미정; 원격만으로 P0 완료 불가 |
-| Common.Limits·바이트/깊이/호출/비용·계산 정밀도·적격 tzdb | 실제 값/적격성 미확정은 관련 처리 보류; NFR 및 소유 단위 기능 설계로 연결 |
+| Common.Limits·바이트/깊이/호출/비용·계산 도구·적격 tzdb | GTA-NUMERIC-1의 수치 규범은 확정. 실제 한도/도구 부합·tzdb 적격성 미확정은 관련 처리 보류; NFR 및 소비자 검증으로 연결 |
 | 근거 있는 안전 규칙/임계값·검증 프로필 | U1이 생리적 수치/의학적 타당성을 발명하지 않음; 미해소 경고/규칙 부재는 U2 안전 게시 차단 유지 |
 | 실제 Drive/GitHub/Calendar 권한·중복/충돌/응답 유실 복구 | P01~P03 UNQUALIFIED 유지; 실제 소유자 검증과 전체 인수 필요 |
 | C08 U2 결과를 U3가 읽는 위치/권한/최신성 | 미검증 상태에서 U3가 수신/평가/게시 성공 안내 금지 |

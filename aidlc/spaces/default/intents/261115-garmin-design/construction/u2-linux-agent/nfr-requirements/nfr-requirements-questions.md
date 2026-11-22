@@ -4,6 +4,10 @@
 - 근거: [기능 명세](../functional-design/functional-spec.md), [업무 규칙](../functional-design/rules.md), [상류 요구사항](../../../inception/requirements-analysis/requirements.md), [교환 계약](../../../inception/contract-design/contract-summary.md).
 - 현재는 QUESTION-ONLY이며 비기능 요구사항 본문·제품 코드·설치·외부 호출을 수행하지 않는다.
 
+## 현재 적용 입력
+
+리뷰 반영 요청과 승인된 최신 기능 설계에 따라 chatgpt FINAL_READER·독립 원 동의/C04 매핑, 등록 connectionIds와 analysisTargets/planInboxConnectionId 분리, GTA-NUMERIC-1/NUM-01~16을 적용한다. 아래 문답은 이전 생성 시 기록이며 원 답변을 다시 작성하지 않는다. 과거 세 모델/수치 공백에 관한 설명은 당시 상류 상태이며 현재는 보완된 모델과 남은 실제 실행 증거를 구분한다. 기존 성능·복구 수치와 미해소 승인·안전·외부 인수 조건은 유지한다.
+
 ## 기존 결정과 미해소 조건
 
 한 사용자/한 PC, Rust·Ubuntu 24.04 이상·한국어 CLI·로그아웃 중 예약 실행을 유지한다. 수집/동기화 기본 1시간과 계획 확인 기본 15분은 독립 설정이다. 이 주기는 외부 서비스 응답 완료나 항상 켜짐/네트워크 가용성 SLA가 아니다.

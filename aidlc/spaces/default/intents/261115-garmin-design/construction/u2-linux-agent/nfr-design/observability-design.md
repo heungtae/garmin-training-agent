@@ -23,6 +23,8 @@
 
 CLI는 현재 데이터/동기화/인증·권한/LLM/Calendar 오류·대상·마지막 성공·재시도 가능 여부·다음 조치를 한국어 텍스트와 종료 결과로 구별한다. 최초/중단은 null과 이유를 보이고 색상만으로 상태를 구분하지 않는다. 늦은 성공 응답이 현재 오류/최신 상태를 덮지 않는다. 저장 실패로 기록을 확정할 수 없으면 안전한 최소 오류와 미확정 사실을 알리며 성공을 만들지 않는다. 종료/오류 범주의 숫자 매핑은 코드 생성 시 이 의미를 보존해 고정한다.
 
+설정 조회/실행 결과는 등록 connectionIds·분석 선택 analysisTargets·계획 수신 planInboxConnectionId를 구별한다. 분석0개는 외부 미게시로 표시하며 선택 경로의 누락/권한 오류를 정상0개로 표시하지 않는다. Drive 분석 중단과 계획 수신 유지·null 수신 보류를 독립 안내한다. chatgpt FINAL_READER는 실제 독자 경로/동의 상태만 표시하고 호출 어댑터나 비밀/endpoint/model 등록을 요구하지 않는다. U2-S65~U2-S71·U2-S73의 저장/재시작·독립 철회·위장/누락 사례에서도 원문 없이 이 차이를 확인한다.
+
 검증 설계: U2-S02·U2-S07·U2-S27~U2-S29·U2-S38·U2-S40·U2-S41·U2-S47·U2-S55~U2-S57·U2-S59·U2-S60·U2-S62·U2-S63. 정상/부분/취소/재시도/늦은 응답에서 참조 계보와 필수 조치를 대조하고 비밀/금지 출력0건을 요구한다. 음성 입력 자체는 보고서에 복사하지 않는다. 실제 CLI/로거/진단은 미실행이다.
 
 <a id="u2-o02"></a>
@@ -75,9 +77,9 @@ C08에 SKIPPED enum을 추가하지 않는다. 과거 skip 자체는 고정 정�
 | 실제 ChatGPT 환경·Drive/GitHub/Calendar·C08 노출 | 해당 실제 기능 활성화/전체 인수 보류; 대역 성공 대체 금지 | 각 외부 인수 담당 |
 | OpenAI 모델/지원 토큰 필드·가격/기간별 예산·품질 | 원격 평가 요청 보류, store=false 등의 형식만으로 해소 금지 | PlanEvaluation/외부 인수 담당 |
 | 로컬/사설 대체 제공자·처리 위치/원격 우회·하드웨어 | 해당 유형 비활성, Ollama 제외; 원격만으로 FR8.2 완료 금지 | PlanEvaluation/외부 인수 담당 |
-| ServiceConnection.serviceName에 chatgpt 없음 | 실제 ANALYSIS 경로 grant 바인딩 보류; enum/우회 매핑 추가 안 함 | 기능 모델/정책 담당 |
-| RuntimeConfiguration.connectionIds의 활성 대상 의미 | 연결 참조 전체를 분석 게시 활성 대상으로 추정 금지 | 기능 모델/AnalysisPublication 담당 |
-| 반복 소수 wire 정밀도·종료 규범 | 관련 계산 적격 보류; BigDecimal/새 반올림으로 해소 금지 | 기능 모델/공유 규범 담당 |
+| 확정 chatgpt FINAL_READER/C04 독립 동의의 구현 부합·실제 경로 | credential/endpoint/model=null·호출 권한 없음 유지; 실제 주체/도구 경로·원 정책 현재성 입증 전 관련 전송 보류 | DataAccessPolicy/실제 독자 인수 담당 |
+| 확정 connectionIds/analysisTargets/planInboxConnectionId의 저장·실행 부합 | 등록·목적별 선택·동의를 구별하고0개 분석/Drive 계획 수신 독립성을 U2-S65~71·73으로 검사 | OperationControl/AnalysisPublication/PlanAdmission 담당 |
+| 확정 GTA-NUMERIC-1의 실제 계산 도구 부합 | 정확30+18자리·중간256자리·최종6자리 HALF_EVEN·정규형 정확 대조를 U2-S72/NUM-01~16으로 검사; 라이브러리 이름만으로 적격 금지 | AnalysisPublication/U2 개발·품질 담당 |
 | 실제 OS/UID·로그아웃/복귀·credential/저장장치·시계/tzdb·Limits | 관련 운영 프로필 보류; manifest/통제 실행/경계 증거 필요 | U2 개발/품질/설치 담당 |
 
 위 조건의 문서 존재·합성 통과만으로 READY/지원 완료를 표시하지 않는다. 모의 권한/승인/안전은 시험 입력임을 기록하고 제품 활성화 근거로 사용하지 않는다. 유한 사례의 금지 출력/잘못 허용0건과 정상 기대 일치는 모든 입력의 안전·의료 타당성·외부 권위를 보증하지 않는다. 현재 산출물의 정적 링크/표/ID/anchor/trace 검사는 문서 검사이며 제품 코드·OS 설치/실행·DB 복구·성능·실제 API/비용/안전 시험은 전부 미실행이다.

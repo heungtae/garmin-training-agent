@@ -39,6 +39,49 @@ C03~C08의 왕복 자료 흐름은 빌드 DAG를 바꾸지 않는다. U2/U3 자�
 - 필수/권한 관련 알 수 없는 필드는 거절한다. 비권한 부가 설명은 선택적 `extensions.x_*` 문자열/널에만 둔다. 소비자는 모르는 extension을 동작·권한 판단에 사용하지 않으며, 전체 digest에서는 제외하지 않는다. 전송 허용은 별도로 검사한다.
 - Common의 VerificationResult는 **등록된 검증기가 내부에서 산출하는 결과 형식**이다. 외부 JSON이 이를 제출해 검증 완료 상태를 자칭할 수 없다. Limits는 실행 설정의 한도 형식이며 시간/크기/호출 예산의 실제 값은 NFR 설계에서 선정한다. 누락/지원 불가 값이면 활성화하지 않는다.
 
+<a id="numeric-profile-v1"></a>
+### 공통 계산 프로필 — GTA-NUMERIC-1
+
+U1이 소유하며 U2 생산자와 U3 소비자가 같은 규칙을 적용한다. 이 프로필은 최초 배포 전 1.0.0 초안의 의미 규범이다. 기존 JSON Schema의 구조를 변경하지 않으며 실제 배포 시에는 본 규범과 아래 기대값도 고정 릴리스에 포함한다. 이미 배포한 명세의 계산 의미를 같은 버전에서 바꾸지 않는다.
+
+| 구분 | 고정 규칙 |
+|---|---|
+| 원천값 | 기존 Quantity 문법의 음수 아닌 십진 문자열을 정확히 읽는다. 정수부 최대 30자리·소수부 최대 18자리다. 수집 원문과 원 단위는 별도 원천 기록에 보존하며 observed 값을 wire 반올림으로 바꾸지 않는다. 한도 초과는 DATA_INVALID다. |
+| 중간 계산 | 입력을 정수 계수/10의 거듭제곱으로 해석하고 약분한 정확한 유리수로 계산한다. 이진 float·고정 소수 자릿수로 먼저 자르는 연산·반올림된 파생값의 재사용을 금지한다. 분자/분모 각각 최대 256자리이며 각 연산 전에 상한을 검사한다. 한도 초과는 RESOURCE_LIMIT다. |
+| 합계·비교 | 거리 m·시간 s 등 같은 단위의 원천값은 정확히 합산·비교한다. 합계는 소수부 최대 18자리, 정수부 최대 30자리다. 합계를 6자리로 반올림하지 않는다. 결과 한도 초과는 DATA_INVALID다. |
+| 파생값 | 속도=거리(m)/시간(s), 페이스=시간(s)×1000/거리(m). 정확한 유리수 결과에 마지막 한 번만 소수부 6자리 ROUND_HALF_EVEN을 적용한다. 유한소수와 반복소수에 같은 규칙을 적용한다. |
+| 반올림 정의 | 정확값에 10^6을 곱한 몫 q와 나머지 r을 얻는다. 2r<분모면 q, 2r>분모면 q+1, 같으면 짝수인 쪽을 택한다. 그 정수를 10^6으로 나눈 십진 문자열로 직렬화한다. 라이브러리 기본 정밀도/반올림에 의존하지 않는다. |
+| wire 정규형 | computed의 수치는 정수부의 불필요한 선행 0·소수부 후행 0·불필요한 소수점을 제거하며 0은 "0"이다. 1 미만 값의 정수부 0은 유지한다. 지수 표기·음수 0·NaN·Infinity는 금지한다. 정수부 최대 30자리다. 정확값>0인데 6자리 반올림값=0이면 실제 0으로 전달하지 않고 DATA_INVALID로 계산/해당 산출물 확정을 보류한다. |
+| 값 없음 | 분모 0은 not_applicable이며 quantity=null이다. missing/not_collected/withheld는 기존 상태 전파 규칙을 따르고 0으로 대체하지 않는다. 단위 불일치·지원하지 않는 계산은 DATA_INVALID다. |
+| 동등성 | 수신자가 허용된 동일 원천·수식으로 재계산한 정규형 wire 문자열과 단위가 정확히 같아야 한다. 허용 오차는 0이다. 소수부 6자리 반올림의 수학적 오차 상한 0.0000005는 수신 허용 오차가 아니다. observed 원문 보존과 computed 정규형 검사는 구분한다. |
+| 근거·재계산 | computed의 calculationBasis에 GTA-NUMERIC-1, 수식, 허용 원천 참조·개정, 입력 단위, 최종 6자리 반올림 또는 정확 합계 여부를 기록한다. sourceRef는 기존 계약대로 유지한다. 숨긴 원천/값을 근거에 복사하지 않는다. 재계산은 원천에서 시작하며 속도로부터 페이스를 역산하지 않는다. 근거/허용 입력을 확보하지 못하면 검증 완료로 표시하지 않는다. |
+| 표시·안전 | 사람용 소수 2자리/분:초 표시는 별도 파생 표시이며 wire·digest·승인 대조를 변경하지 않는다. 이 프로필은 의학적 한계값이나 훈련 안전성을 결정하지 않는다. |
+
+아래는 U1이 제공하는 공통 수치 oracle이며 U2/U3의 독립 부합 검사에 모두 포함한다. `distance`는 m, `duration`은 s다. 정상 computed 행은 state=computed와 근거가 필요하며, 오류 행은 수치 생성/검증 완료를 거절한다. 표의 고정 기대값을 소비자 구현으로 새로 생성해 정답을 바꾸지 않는다.
+
+| ID | 연산 | 입력 | 기대 wire 값 또는 판정 |
+|---|---|---|---|
+| NUM-01 | speed | distance=1; duration=3 | 0.333333 m/s |
+| NUM-02 | pace | distance=3; duration=1 | 333.333333 s/km |
+| NUM-03 | speed | distance=1; duration=128 | 0.007812 m/s |
+| NUM-04 | speed | distance=3; duration=128 | 0.023438 m/s |
+| NUM-05 | speed | distance=0; duration=3 | 0 m/s |
+| NUM-06 | speed | distance=1; duration=0 | not_applicable; quantity=null |
+| NUM-07 | pace | distance=0; duration=1 | not_applicable; quantity=null |
+| NUM-08 | sum | 0.1 m + 0.2 m | 0.3 m |
+| NUM-09 | speed-check | distance=1; duration=3; received=0.333333333 | DATA_INVALID |
+| NUM-10 | speed | distance=999999999999999999999999999999; duration=1 | 999999999999999999999999999999 m/s |
+| NUM-11 | speed | distance=1000000000000000000000000000000; duration=1 | DATA_INVALID |
+| NUM-12 | speed | distance=0.000001; duration=1 | 0.000001 m/s |
+| NUM-13 | speed | distance=0.0000001; duration=1 | DATA_INVALID |
+| NUM-14 | sum | 999999999999999999999999999999 m + 1 m | DATA_INVALID |
+| NUM-15 | sum | 0.000000000000000001 s + 0.000000000000000001 s | 0.000000000000000002 s |
+| NUM-16 | pace | distance=1; duration=128; speedWire=0.007812 | 128000 s/km; speedWire는 계산 입력에서 제외 |
+
+정상 교환 fixture의 computed 8개도 같은 근거 규칙으로 검사한다. 각 근거에서 프로필 식별자·수식·허용 원천 참조와 개정·입력 단위·정확 합계/최종 6자리 반올림 구분을 하나씩 제거한 음성 변형은 구조 검사 통과 여부와 별개로 DATA_INVALID이며 수치 검증 완료로 표시하지 않는다.
+
+NUM-03/04는 정확한 절반의 짝수 반올림을 서로 다른 방향으로 검사한다. NUM-10~15는 크기·0과 양수의 구별·정확 합계 경계를, NUM-16은 단계별 반올림의 누적 오차 방지를 검사한다. 이 기대값의 문서 검증은 실제 Rust/ChatGPT 계산 도구의 부합 실행을 대신하지 않는다.
+
 ### 공통 형식 — U1 소유
 
 ```json
@@ -2280,7 +2323,7 @@ U3는 자신의 STORE 결과만 생산한다. U2의 수신·검증·평가·Cale
 
 승인 문구나 코드 문자열 자체는 권한이 아니다.
 
-원천 수치·계산의 의미 검사와 안전 검증 프로필은 Functional Design에서 구체화한다. 과도한 강도/훈련량·회복 부족 경고를 무시하지 않는다. 안전 규칙과 근거가 미설정/검증 불가이면 자동 게시를 보류한다. 실제 운동 기록은 계획 개정으로 갱신하지 않는다.
+원천 수치·계산의 의미 검사는 공통 GTA-NUMERIC-1을 기준으로 Functional Design에서 구체화하고, 안전 검증 프로필은 별도로 확정한다. 과도한 강도/훈련량·회복 부족 경고를 무시하지 않는다. 안전 규칙과 근거가 미설정/검증 불가이면 자동 게시를 보류한다. 실제 운동 기록은 계획 개정으로 갱신하지 않는다.
 
 ### 작성본·스냅샷·버전 연결
 
@@ -2887,7 +2930,7 @@ HTTP 429의 Retry-After가 현재 실행의 제한을 넘으면 다음 처리로
 | P04 / OPEN-007 | 원격 모델·예산·비용 조건·응답 품질과 실제 호환성 미확정 | U2 원격 LLM 활성화/적격성 |
 | P04 / LLM-002·FR8.2 | 로컬/사설 대체 제공자·API·모델·실제 처리 위치·하드웨어 조건 미정 | U2 로컬/사설 연결 유형 완료 판정; 원격만으로 P0 전체 완료 불가 |
 | P01~P03 / VAL-003~004 | 실제 계정·권한·비공개/공유 범위·원격 결과 대조·생성 중복·사용자 수정 충돌/복구 미검증 | 해당 실제 게시/수신 경로의 활성화·인수 |
-| Common.Limits·CR04·CR05 | 시간/바이트/깊이/호출 한도·시간대 데이터 적격성·계산/검증 규칙의 상세와 측정/경계 검증 필요 | 관련 실행 프로필 활성화; NFR/Functional Design에서 값·규칙 선정 |
+| Common.Limits·CR04·CR05 | 시간/바이트/깊이/호출 한도·시간대 데이터 적격성과 실제 도구의 GTA-NUMERIC-1 부합 실행 증거 필요. 계산 정밀도·반올림·비교 규범은 위 공통 프로필로 확정 | 관련 실행 프로필 활성화; 수치 규범의 확정과 도구 적격성을 구별 |
 | CR05·CR08·CR09 / PLN-005 | 강도/양 변화·회복 부족의 근거 있는 안전 규칙·한계와 검증 프로필 미확정 | U2 자동 게시의 안전 적격 판단, U3 계획 경고의 상세 검증 |
 | C08 | U2 상태를 U3가 신뢰성 있게 읽는 위치·권한·최신성 및 미지원 시 안내 경로 미검증 | U3의 수신/평가/게시 결과 안내; 미확인 성공 표현 금지 |
 
@@ -2906,6 +2949,10 @@ Context: ChatGPT 승인·저장·수신·게시의 구분과 추가 PC 확인 �
 ### CD-ADR-003 — 최소 텍스트 평가 프로필
 
 Context: 원격/로컬·사설 OpenAI 호환 연결과 오류 시 기존 계획 보존이 필요하다. Decision: 초기 원격 대상 OpenAI API의 비스트리밍 텍스트 Chat Completions 사용 부분을 규정하고, 로컬/사설은 공급자 미정 상태의 같은 의미 계약/적격 조건으로 남긴다. Consequences: 모델별 기능·토큰 한도·품질·비용·실제 로컬 처리를 확인해야 하며 범용 호환이라는 이름만으로 합격시키지 않는다. Alternatives Rejected: 제공자별 비호환 독자 API를 필수로 도입, 단일 원격 유형으로 로컬/사설 P0를 충족했다고 처리, 공급자 자동 우회는 요구사항과 맞지 않는다. Responses API는 별도 계약·검증 시 비교할 수 있으나 이번 최소 교환 프로필과 혼용하지 않는다.
+
+### CD-ADR-004 — 정확한 원천과 유한 파생값의 분리
+
+Context: 1/3 m/s 같은 반복소수는 유한 Quantity 문자열로 정확히 보낼 수 없으며 소비자별 기본 정밀도는 다른 판정을 만든다. Decision: GTA-NUMERIC-1의 정확한 유리수 중간값·정확 합계와 최종 소수부 6자리 HALF_EVEN 파생값을 구분하고, 정규형의 오차 없는 문자열 대조 및 NUM-01~16을 공통 규범으로 정한다. Consequences: 원천과 근거를 보존해야 하고 초소량/크기 한도 초과는 명시적 오류가 된다. 실제 라이브러리의 실행 적격성·의학적 타당성은 별도다. Alternatives Rejected: 모든 나눗셈을 무반올림 십진으로 표현, 소비자별 BigDecimal 기본값, 사람용 2자리 표시값 재사용, 허용 오차로 다른 승인 대상 수치를 동일시하는 방식은 재현성·내용 동일성에 부적합하다.
 
 ## 합성 적합성 사례와 검증 한계
 
@@ -2945,7 +2992,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
               "unit": "m"
             },
             "sourceRef": "inputset-synthetic-001",
-            "calculationBasis": "합성 원천 합계"
+            "calculationBasis": "GTA-NUMERIC-1; sum(distance); source=activity-synthetic-001@0001; inputUnit=m; exact-sum; no rounding"
           },
           "duration": {
             "state": "computed",
@@ -2954,7 +3001,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
               "unit": "s"
             },
             "sourceRef": "inputset-synthetic-001",
-            "calculationBasis": "합성 원천 합계"
+            "calculationBasis": "GTA-NUMERIC-1; sum(duration); source=activity-synthetic-001@0001; inputUnit=s; exact-sum; no rounding"
           }
         }
       ],
@@ -2990,7 +3037,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
                 "unit": "s/km"
               },
               "sourceRef": "activity-synthetic-001",
-              "calculationBasis": "1200s / 2km"
+              "calculationBasis": "GTA-NUMERIC-1; duration(s) * 1000 / distance(m); source=activity-synthetic-001@0001; inputs=1200 s, 2000 m; final6dp=ROUND_HALF_EVEN; wire=600 s/km"
             },
             "speed": {
               "state": "missing",
@@ -3121,7 +3168,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
           "storeAlias": "drive-analysis-synthetic",
           "objectId": "drive-object-synthetic-analysis",
           "versionRef": "0001",
-          "digest": "sha256:5d2cf020be4ea0fce06900c696f83f2ae28778bac2b98b5ab623847f500ea60a"
+          "digest": "sha256:41f9fc46029ac22b00b8568b78f8ec834074d76e151961cc78457615df44ad29"
         }
       ],
       "weeklyObjectives": [
@@ -3177,7 +3224,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
       "approvalId": "declaration-synthetic-001",
       "claimedSubjectRef": "subject-synthetic",
       "documentKind": "PLAN",
-      "targetDigest": "sha256:d154c05dc6e69198c2398ff38cb3f4c39dc6821c5513f66f9521ca7c0c377e13",
+      "targetDigest": "sha256:9a3b86103dc2d3b8981f9ae967669601098be1467c3f8c0e0ab1ad6181bd98fe",
       "policyDigest": "sha256:81907f748c2c84c18fb333ccb83ed008c41cefc01872af32f66504c7420bf8f0",
       "authorizedActions": [
         "PUBLISH_PLAN"
@@ -3190,7 +3237,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
           "storeAlias": "drive-plans-synthetic",
           "objectId": "drive-object-synthetic-plan",
           "versionRef": "0001",
-          "digest": "sha256:d154c05dc6e69198c2398ff38cb3f4c39dc6821c5513f66f9521ca7c0c377e13"
+          "digest": "sha256:9a3b86103dc2d3b8981f9ae967669601098be1467c3f8c0e0ab1ad6181bd98fe"
         }
       }
     },
@@ -3200,7 +3247,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
       "subjectRef": "subject-synthetic",
       "planId": "plan-synthetic-001",
       "expectedVersionId": "version-synthetic-0001",
-      "expectedPlanDigest": "sha256:d154c05dc6e69198c2398ff38cb3f4c39dc6821c5513f66f9521ca7c0c377e13",
+      "expectedPlanDigest": "sha256:9a3b86103dc2d3b8981f9ae967669601098be1467c3f8c0e0ab1ad6181bd98fe",
       "action": "CANCEL_PUBLICATION",
       "replacementPlan": null,
       "impact": {
@@ -3220,7 +3267,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
       "workId": "work-synthetic-001",
       "stage": "STORE",
       "state": "SUCCESS",
-      "targetDigest": "sha256:d154c05dc6e69198c2398ff38cb3f4c39dc6821c5513f66f9521ca7c0c377e13",
+      "targetDigest": "sha256:9a3b86103dc2d3b8981f9ae967669601098be1467c3f8c0e0ab1ad6181bd98fe",
       "observedAt": "2026-11-18T00:00:00Z",
       "lastSuccessfulAt": "2026-11-18T00:00:00Z",
       "sessionResults": [],
@@ -3228,7 +3275,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
     },
     "EVALUATION": {
       "schemaVersion": "1.0.0",
-      "evaluatedDigest": "sha256:d154c05dc6e69198c2398ff38cb3f4c39dc6821c5513f66f9521ca7c0c377e13",
+      "evaluatedDigest": "sha256:9a3b86103dc2d3b8981f9ae967669601098be1467c3f8c0e0ab1ad6181bd98fe",
       "assessment": "INSUFFICIENT_DATA",
       "evidenceRefs": [
         "analysis-synthetic-drive-001"
@@ -3267,7 +3314,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
           "finish_reason": "stop",
           "message": {
             "role": "assistant",
-            "content": "{\"schemaVersion\":\"1.0.0\",\"evaluatedDigest\":\"sha256:d154c05dc6e69198c2398ff38cb3f4c39dc6821c5513f66f9521ca7c0c377e13\",\"assessment\":\"INSUFFICIENT_DATA\",\"evidenceRefs\":[\"analysis-synthetic-drive-001\"],\"findings\":[],\"proposedAdjustments\":[],\"assumptions\":[\"합성 사례\"],\"limitations\":[\"실제 적정성/사용자 승인/모델 검증 사례가 아님\"]}",
+            "content": "{\"schemaVersion\":\"1.0.0\",\"evaluatedDigest\":\"sha256:9a3b86103dc2d3b8981f9ae967669601098be1467c3f8c0e0ab1ad6181bd98fe\",\"assessment\":\"INSUFFICIENT_DATA\",\"evidenceRefs\":[\"analysis-synthetic-drive-001\"],\"findings\":[],\"proposedAdjustments\":[],\"assumptions\":[\"합성 사례\"],\"limitations\":[\"실제 적정성/사용자 승인/모델 검증 사례가 아님\"]}",
             "refusal": null
           }
         }
@@ -3283,37 +3330,37 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
           "contractId": "C03",
           "schemaId": "urn:gta:contract:C03:1.0.0",
           "schemaDigest": "sha256:4c67a0288cb1950647052ef43cd0247f34fb2dbd9f11b31e66226e98c0a53cfb",
-          "fixturesDigest": "sha256:1beaf87bd4bfb73f558e012683fc8568b43046b920446328fa4414d4b45721cb"
+          "fixturesDigest": "sha256:a354173a3227aaf64b9c4b72085af4e146afb22d100c2426cdd97f01d32f6955"
         },
         {
           "contractId": "C04",
           "schemaId": "urn:gta:contract:C04:1.0.0",
           "schemaDigest": "sha256:2dbe3ab6be03143e81a5d4726543df22c1c6a6f689a9fee70744693c04b183bb",
-          "fixturesDigest": "sha256:1beaf87bd4bfb73f558e012683fc8568b43046b920446328fa4414d4b45721cb"
+          "fixturesDigest": "sha256:a354173a3227aaf64b9c4b72085af4e146afb22d100c2426cdd97f01d32f6955"
         },
         {
           "contractId": "C05",
           "schemaId": "urn:gta:contract:C05:1.0.0",
           "schemaDigest": "sha256:8f410844d8597b0f1e0b6994c88f8413203b81aebcd868eaa9038d636b0723a5",
-          "fixturesDigest": "sha256:1beaf87bd4bfb73f558e012683fc8568b43046b920446328fa4414d4b45721cb"
+          "fixturesDigest": "sha256:a354173a3227aaf64b9c4b72085af4e146afb22d100c2426cdd97f01d32f6955"
         },
         {
           "contractId": "C06",
           "schemaId": "urn:gta:contract:C06:1.0.0",
           "schemaDigest": "sha256:c2596e85a28b1ffa3479ec7d15eda1384b653f728c074c487c7f0fd27c7d2e26",
-          "fixturesDigest": "sha256:1beaf87bd4bfb73f558e012683fc8568b43046b920446328fa4414d4b45721cb"
+          "fixturesDigest": "sha256:a354173a3227aaf64b9c4b72085af4e146afb22d100c2426cdd97f01d32f6955"
         },
         {
           "contractId": "C07",
           "schemaId": "urn:gta:contract:C07:1.0.0",
           "schemaDigest": "sha256:341b7e67f72ebd20bd4bbd8c9cadaec855f42990913ba2522734738c9a6a6fd9",
-          "fixturesDigest": "sha256:1beaf87bd4bfb73f558e012683fc8568b43046b920446328fa4414d4b45721cb"
+          "fixturesDigest": "sha256:a354173a3227aaf64b9c4b72085af4e146afb22d100c2426cdd97f01d32f6955"
         },
         {
           "contractId": "C08",
           "schemaId": "urn:gta:contract:C08:1.0.0",
           "schemaDigest": "sha256:2a1bffa832d047c329670277f1f34e967b3297cb6c62cbad3855c8f137017d3a",
-          "fixturesDigest": "sha256:1beaf87bd4bfb73f558e012683fc8568b43046b920446328fa4414d4b45721cb"
+          "fixturesDigest": "sha256:a354173a3227aaf64b9c4b72085af4e146afb22d100c2426cdd97f01d32f6955"
         }
       ]
     },
@@ -3376,7 +3423,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
               "unit": "m"
             },
             "sourceRef": "inputset-synthetic-001",
-            "calculationBasis": "합성 원천 합계"
+            "calculationBasis": "GTA-NUMERIC-1; sum(distance); source=activity-synthetic-001@0001; inputUnit=m; exact-sum; no rounding"
           },
           "duration": {
             "state": "withheld",
@@ -3476,7 +3523,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
               "unit": "m"
             },
             "sourceRef": "inputset-synthetic-001",
-            "calculationBasis": "합성 원천 합계"
+            "calculationBasis": "GTA-NUMERIC-1; sum(distance); source=activity-synthetic-001@0001, activity-synthetic-002@0001; inputUnit=m; exact-sum; no rounding"
           },
           "duration": {
             "state": "computed",
@@ -3485,7 +3532,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
               "unit": "s"
             },
             "sourceRef": "inputset-synthetic-001",
-            "calculationBasis": "합성 원천 합계"
+            "calculationBasis": "GTA-NUMERIC-1; sum(duration); source=activity-synthetic-001@0001, activity-synthetic-002@0001; inputUnit=s; exact-sum; no rounding"
           }
         }
       ],
@@ -3496,7 +3543,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
             "storeAlias": "drive-synthetic",
             "objectId": "detail-synthetic-0",
             "versionRef": "0001",
-            "digest": "sha256:76402cbed5c78b6f1c4bdce37e1c6e6e07d3abd0851426b4c8f2873b23ac065e"
+            "digest": "sha256:328ba2f87d0a4210b39d38fd325df2fa0773f9a232667a5cdca2b6a603181002"
           },
           "partIndex": 0,
           "period": {
@@ -3511,7 +3558,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
             "storeAlias": "drive-synthetic",
             "objectId": "detail-synthetic-1",
             "versionRef": "0001",
-            "digest": "sha256:7a64c1ce7ef55f6e8492630c1807c104068368865be4d409a63e84d6ae8d54c4"
+            "digest": "sha256:e348da35693611deb6c35b6fcdc44bda5b612fdfcb163608006c1cc696eddfb8"
           },
           "partIndex": 1,
           "period": {
@@ -3613,7 +3660,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
                 "unit": "s/km"
               },
               "sourceRef": "activity-synthetic-001",
-              "calculationBasis": "1200s / 2km"
+              "calculationBasis": "GTA-NUMERIC-1; duration(s) * 1000 / distance(m); source=activity-synthetic-001@0001; inputs=1200 s, 2000 m; final6dp=ROUND_HALF_EVEN; wire=600 s/km"
             },
             "speed": {
               "state": "missing",
@@ -3701,7 +3748,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
                 "unit": "s/km"
               },
               "sourceRef": "activity-synthetic-002",
-              "calculationBasis": "1200s / 2km"
+              "calculationBasis": "GTA-NUMERIC-1; duration(s) * 1000 / distance(m); source=activity-synthetic-002@0001; inputs=1200 s, 2000 m; final6dp=ROUND_HALF_EVEN; wire=600 s/km"
             },
             "speed": {
               "state": "missing",
@@ -4823,7 +4870,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
                 "storeAlias": "drive-synthetic",
                 "objectId": "detail-synthetic-0",
                 "versionRef": "0001",
-                "digest": "sha256:76402cbed5c78b6f1c4bdce37e1c6e6e07d3abd0851426b4c8f2873b23ac065e"
+                "digest": "sha256:328ba2f87d0a4210b39d38fd325df2fa0773f9a232667a5cdca2b6a603181002"
               },
               "partIndex": 0,
               "period": {
@@ -4881,7 +4928,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
                   "unit": "s/km"
                 },
                 "sourceRef": "activity-synthetic-001",
-                "calculationBasis": "1200s / 2km"
+                "calculationBasis": "GTA-NUMERIC-1; duration(s) * 1000 / distance(m); source=activity-synthetic-001@0001; inputs=1200 s, 2000 m; final6dp=ROUND_HALF_EVEN; wire=600 s/km"
               },
               "speed": {
                 "state": "missing",
@@ -5114,7 +5161,7 @@ Quantity의 실제 0과 미수집/누락을 구분하며, 한국어·인용부�
               "unit": "s"
             },
             "sourceRef": "inputset-synthetic-001",
-            "calculationBasis": "합성 원천 합계"
+            "calculationBasis": "GTA-NUMERIC-1; sum(duration); source=activity-synthetic-001@0001; inputUnit=s; exact-sum; no rounding"
           }
         }
       ],

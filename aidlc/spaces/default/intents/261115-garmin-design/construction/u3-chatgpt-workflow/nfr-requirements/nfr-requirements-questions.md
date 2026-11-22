@@ -4,6 +4,10 @@
 - 근거: [기능 명세](../functional-design/functional-spec.md), [업무 규칙](../functional-design/rules.md), [상류 NFR](../../../inception/requirements-analysis/requirements.md), [공유 계약](../../../inception/contract-design/contract-summary.md), [단위별 배정](../../../inception/units-generation/unit-of-work-story-map.md).
 - 현재는 QUESTION-ONLY다. 확인 후 작성할 산출물은 security-requirements.md·tech-stack-decisions.md·traceability.json이며 이 질문 단계에서 생성하지 않는다.
 
+## 현재 적용 입력
+
+승인된 최신 기능 설계의 GTA-NUMERIC-1/NUM-01~16·Intensity BR3.6 참조 정정·U3-37~39와 U3-PRE-01~03을 반영한다. 아래 문답은 이전 생성 시 기록이며 원 답변을 다시 작성하지 않는다. 과거 오참조 유지 설명은 현재 모델에 적용하지 않고 실제 도구/정책·승인 발급/검증·안전 프로필은 구현 선행 미결정으로 유지한다. 기존 범위와 추가 PC 승인 없는 정책을 변경하지 않는다.
+
 ## 추가 질문 분석
 
 새 사용자 정책 선택이 필요한 일반 질문은 없다. U3에 직접 배정된 NFR1~NFR11의 11개를 기존 대화/명세 책임 안에서 구체화한다. 승인된 정책/권한·불신 입력·정확한 전체 내용/버전·근거/상태·비진단/불확실성·환경별 실제 증거 기준이 작성 입력을 제공한다.

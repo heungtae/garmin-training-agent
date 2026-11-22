@@ -39,7 +39,9 @@ jsonschema0.62.0 후보는 설치본에 고정한 registry1.0.0과 등록 참조
 
 대응: NFR2.1·NFR3.1·NFR3.2·NFR3.3·NFR4.1. 소유: DataAccessPolicy(원 정책), 각 전송 소유자(직전 검사), AnalysisPublication(투영). 규칙: BR3.1·BR3.8·BR4.10·BR8.7·BR9.1·BR10.3.
 
-요청 직전 신뢰한 현재 설정에서 실제 서비스/목적/대상 경로를 구하고 연결의 최소 권한·비공개·활성 대상·현재 사용자/원 정책 digest·동의/철회를 검증한다. 이 확인은 최초/재시도/대조/LLM/Calendar 모두에 적용한다. payload가 주장한 경로 목록을 검사 범위로 삼지 않는다. 불명/거절/만료/철회/공개 대상은 신규 효과를 막고 조치를 반환한다. 진행 중 전송의 결과는 미확인/대조로 보존하며 외부 사본 회수 성공으로 표현하지 않는다.
+요청 직전 신뢰한 현재 설정에서 실제 서비스/목적/대상 경로를 구하고 연결의 최소 권한·비공개·활성 대상·현재 사용자/원 정책 digest·동의/철회를 검증한다. connectionIds는 등록 목록이며 전송 동의/활성 선택이 아니다. analysisTargets가 선택한 저장소 DIRECT_SERVICE와 모든 chatgpt FINAL_READER의 실제 경로를 검사한다. 빈 선택은 로컬 보존·분석 외부 미게시이며 선택 경로 오류를 빈 선택으로 숨기지 않는다. planInboxConnectionId는 별도 drive DIRECT_SERVICE 계획 수신 선택이고 null이면 수신 보류다. Drive 분석 비활성화/분석0개가 이 선택을 해제하지 않는다. 이 확인은 최초/재시도/대조/LLM/Calendar 모두에 적용한다. payload가 주장한 경로 목록을 검사 범위로 삼지 않는다. 불명/거절/만료/철회/공개 대상은 신규 효과를 막고 조치를 반환한다. 진행 중 전송의 결과는 미확인/대조로 보존하며 외부 사본 회수 성공으로 표현하지 않는다.
+
+chatgpt FINAL_READER는 credentialReferenceId/endpointReference/modelReference=null이며 Linux 호출 어댑터·비밀 등록·직접 실행 권한을 만들지 않는다. 실제 독자 계정/도구 경로·주체 대응·현재성 증거 없으면 UNQUALIFIED다. SharingConsent.connectionId에서 C04(serviceName→service,purpose,targetReference→targetAlias)의 유일 grant로 대응하고 주체·원 개정·현재성/철회·전체 정책 digest를 확인한다. Drive와 ChatGPT의 원 동의는 독립적이며 저장소 허용을 최종 독자 허용으로 승격하지 않는다. 계정/대상 혼동·다른 서비스 위장·독자 누락·중복 매핑은 차단한다.
 
 C03 실제 ANALYSIS 경로마다 유일한 grant의 분석용9개 필드 집합을 ASCII 정렬하여 projection과 정확히 비교한다. 넓거나 좁음·중복 grant·경로 누락이면 전체 신규 분석 전송을 보류한다. grant를 합치거나 교집합을 자동 생성하지 않는다. 최소 analysis.metadata/summary.period/activity.date/activity.sport 중 하나라도 미허용이면 C03 전체 보류다. 실제 시각/오프셋·계보/개수까지 공개됨을 동의 설명에 유지한다.
 
@@ -47,7 +49,7 @@ C03 실제 ANALYSIS 경로마다 유일한 grant의 분석용9개 필드 집합�
 
 C05~C08/LLM/Calendar도 업무 목적의 필수 묶음과 정확한 허용 입력을 검사한다. 안전한 최소 자료가 불가하면 보류한다. 동일 승인 payload를 임의 가려 재전송하지 않는다. 정책 변경이면 새 전체 정책 digest·투영·snapshotId로 다시 검사한다. 권한·현재성·승인 캐시의 통과로 직전 검사를 생략하지 않는다. 예산 예약 후 검사 조건이 바뀌면 전송하지 않고 예약 결과는 [U2-R04](reliability-design.md#u2-r04)로 처리한다.
 
-검증 설계: U2-S07·U2-S22~U2-S26·U2-S31·U2-S39·U2-S48·U2-S61·U2-S63 및 계약S02~S05·S17~S18·S21~S23. 허용 정상과 더 넓음/좁음/누락/중복·검사 후 철회를 비교해 잘못 허용/금지 전송0건을 검사한다. serviceName에 chatgpt가 없는 위험과 connectionIds 활성 대상 의미는 [U2-O04](observability-design.md#u2-o04)대로 남으며 실제 경로 바인딩 부합 전 관련 전송은 보류다.
+검증 설계: U2-S07·U2-S22~U2-S26·U2-S31·U2-S39·U2-S48·U2-S61·U2-S63·U2-S65~U2-S71·U2-S73 및 계약S02~S05·S17~S18·S21~S23. 허용 정상과 더 넓음/좁음/누락/중복·검사 후 철회, 등록/목적별 선택의 저장·재시작, 분석0개·Drive 분석 중단/계획 수신 유지를 비교한다. 잘못 허용/금지 전송0건·필수 판정 일치를 요구한다. 모델 표현은 확정되었으며 구현 매핑/실제 경로·권한·정책 현재성 검증 전 관련 전송 보류는 [U2-O04](observability-design.md#u2-o04)를 따른다.
 
 <a id="u2-sec04"></a>
 ## U2-SEC04 — 독립 승인·안전·LLM 근거 판정

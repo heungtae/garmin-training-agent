@@ -4,6 +4,10 @@
 - 근거: [승인 기능 설계](../functional-design/functional-spec.md), [업무 규칙](../functional-design/rules.md), [상류 NFR](../../../inception/requirements-analysis/requirements.md), [공통 계약](../../../inception/contract-design/contract-summary.md), [단위별 NFR 배정](../../../inception/units-generation/unit-of-work-story-map.md).
 - 이번 작업: NFR Requirements의 질문·요약 확인. 실제 제품 코드·검증기 구현·설치·외부 호출을 수행하지 않는다.
 
+## 현재 적용 입력
+
+리뷰 반영 요청과 승인된 최신 공통 계약/기능 설계에 따라 GTA-NUMERIC-1과 NUM-01~16을 상세 NFR에 반영한다. 계산 정밀도·반올림·동등성 규범은 확정됐고 실제 도구 부합은 미검증이다. 아래 문답/요약 확인은 이전 생성 시의 기록이며 답변을 새로 작성하거나 승인 범위를 확대하지 않는다. ConsumerBinding의 개정 식별 한계 등 나머지 수용 위험은 유지한다.
+
 ## 추가 질문 분석
 
 별도의 사용자 판단이 필요한 신규 질문은 없다. U1은 독립 실행 서비스가 아닌 명세 단위이며, 승인된 Common/C01~C08·합성 자료·호환 기준에 대한 보안·무결성·시간/상태 표현·증거 추적을 상세 NFR로 구체화한다. 런타임의 응답 시간·처리량·메모리·재시도 수치와 운영 기술은 해당 실행 단위에서 결정한다.

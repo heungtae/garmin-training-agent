@@ -54,7 +54,7 @@ rules:
     category: calculation
     applies_to: [Quantity, Metric, C03, C05]
     trigger: "수치/강도/기간 합계의 의미 검사"
-    logic: "IF 십진 문자열이 음수가 아니고 거리 m·시간 s·페이스 s/km·속도 m/s·심박 bpm 등 해당 필드 단위가 일치 THEN 계산한다. 결정적 페이스=시간(s)×1000/거리(m), 속도=거리(m)/시간(s); 분모 0은 not_applicable이다. 표현상 반올림/변환은 식별한 계산 근거와 허용 프로필에 결합하며 근거·정밀도 미해소를 observed로 승격하지 않는다."
+    logic: "IF 원천/단위가 유효 THEN GTA-NUMERIC-1을 적용한다. 원천·정확 합계는 정수부 30자리/소수부 18자리, 중간값은 분자/분모 각각 256자리 이내 정확한 유리수다. 페이스=시간(s)×1000/거리(m), 속도=거리(m)/시간(s)에만 최종 소수부 6자리 HALF_EVEN 후 정규형을 만든다. 분모 0은 not_applicable이다. 양수의 0 반올림·표현 범위 초과는 DATA_INVALID, 중간 계산 한도 초과는 RESOURCE_LIMIT다. computed는 프로필/수식/허용 원천 개정/단위/정확 합계 또는 최종 반올림 근거를 요구하고 수신 재계산의 wire 문자열·단위가 정확히 같아야 한다. 표시 반올림을 재사용하거나 computed를 observed로 승격하지 않는다."
     violation: "DATA_INVALID; NaN·무한대 금지, 비현실성/안전의 적격 기준 미해소는 SAFETY_BLOCKED로 연결"
     source: [FR2.7, FR2.9, FR4.3, FR4.6, FR6.6]
   - id: BR2.3

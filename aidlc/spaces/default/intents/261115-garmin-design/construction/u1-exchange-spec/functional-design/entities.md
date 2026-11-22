@@ -133,7 +133,7 @@ value_objects:
     constraints: "C01의 정확한 필드·유형; C03~C08 각각 한 번"
   - name: Quantity
     attributes: [value, unit]
-    constraints: "Common.Quantity; value는 0 이상 십진 문자열, 단위는 [m, s, m/s, s/km, bpm, rpe, ratio, count] 중 하나"
+    constraints: "Common.Quantity와 GTA-NUMERIC-1; value는 0 이상 십진 문자열, 원천/정확 합계 정수부 30자리·소수부 18자리, 파생 속도/페이스는 최종 소수부 6자리 HALF_EVEN 정규형. 단위는 [m, s, m/s, s/km, bpm, rpe, ratio, count] 중 하나; 값의 정밀도와 실제 도구 적격성을 구별"
   - name: Metric
     attributes: [state, quantity, sourceRef, calculationBasis]
     constraints: "Common.Metric; observed/computed/estimated/missing/not_collected/not_applicable/withheld의 7상태; rules.md BR2.1~2.2"

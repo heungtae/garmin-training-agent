@@ -156,7 +156,7 @@ rules:
     category: "authorization"
     applies_to: ["RuntimeConfiguration","RepositoryPublication"]
     trigger: "대상 선택·게시"
-    logic: "IF 대상이 유효 설정에서 비활성이면 해당 대상으로 전송하지 않는다. 하나/양쪽 선택을 지원하며 유효 대상 0개면 로컬 보존과 외부 미게시를 표시한다. GitHub만 선택해도 계획 수신 Drive 경로의 요구는 면제되지 않는다."
+    logic: "IF 대상이 RuntimeConfiguration.analysisTargets에 명시 선택되어 있고 storage/모든 finalReaderConnectionIds가 등록·역할·현재 동의/권한 검사를 통과하면 해당 분석만 게시 후보로 삼는다. connectionIds는 등록 목록이며 동의는 전송 허가이므로 활성 선택을 대신하지 않는다. 하나/양쪽/0개 선택을 지원하고 0개면 로컬 보존·외부 미게시다. 계획 확인은 별도 planInboxConnectionId만 사용한다. 대상 비활성화 직후 미전송/재시도 쓰기를 중단하고 이전 미확인 효과는 허용된 읽기 대조만 하며 임의 삭제하지 않는다. 변경은 기대 설정 개정으로 확정·조회·재시작 복원한다."
     violation: "비활성/미허용 대상 전송 금지"
     source: ["FR3.2"]
   - id: BR3.3
@@ -276,7 +276,7 @@ rules:
     category: "calculation"
     applies_to: ["AnalysisSnapshot"]
     trigger: "수치/요약 생성"
-    logic: "IF 원천 decimal 값을 합산하면 m/s 등 단위를 검증한 후 Decimal로 정확히 계산한다. 표시값은 half-even 소수 2자리로 반올림하고 원 수치/반올림 기준과 부분합 차이를 표시한다. 계산 원값은 반올림하지 않으며 JSON 십진 문자열로 보존한다."
+    logic: "IF 허용된 원천/단위를 계산하면 공통 GTA-NUMERIC-1을 적용한다. 원천과 같은 단위 합계는 정수부30/소수부18자리 이내 정확 십진으로 보존하고, 분자/분모 각각256자리 이내 유리수 중간값에서 속도/페이스만 마지막 소수부6자리 HALF_EVEN으로 wire 정규화한다. 양수의0반올림·결과 한도 초과는 DATA_INVALID, 중간값 한도 초과는 RESOURCE_LIMIT다. calculationBasis에 프로필/수식/허용 원천 개정/단위/정확 합계 또는 최종 반올림을 기록한다. 같은 입력 재계산의 정규형·단위를 오차0으로 대조한다. 사람용2자리 표시는 별도이며 반올림된 속도로 페이스를 재계산하지 않는다."
     violation: "동일 스냅샷 중 숫자/설명 불일치는 생성 보류"
     source: ["FR4.8"]
   - id: BR4.9
@@ -292,7 +292,7 @@ rules:
     category: "authorization"
     applies_to: ["SharingConsent","AnalysisSnapshot","EvaluationRequest","PublicationIntent"]
     trigger: "저장소/ChatGPT/LLM/Calendar 전송 직전"
-    logic: "IF 실제 경로별 서비스·목적·대상 grant가 각각 하나이고 현재 검증/철회 확인이 성공하면 해당 범위만 전송한다. C03의 모든 실제 ANALYSIS 경로의 정렬된 분석 필드 집합은 projection과 정확히 같아야 한다. 넓거나 좁아도 교집합 자동 생성 없이 전체 신규 전송을 보류한다. 최소 네 필드 명시 동의가 필요하며 자유 서술/요약/계산/오류도 금지 자료를 우회 전송하지 못한다."
+    logic: "IF 신뢰된 analysisTargets의 저장 연결과 실제 finalReader 연결 각각의 SharingConsent를 찾아 connection.serviceName/purpose/targetReference를 C04 service/purpose/targetAlias로 대응하고 현재 주체/개정/digest/철회·권한 검증을 통과하면 해당 범위만 전송한다. 실제 도구 경로와 설정 경로가 다르거나 chatgpt를 drive/openai로 위장하면 보류한다. 각 grant는 유일해야 하며 C03 모든 실제 ANALYSIS 경로의 정렬된 분석 필드 집합은 projection과 정확히 같아야 한다. 넓거나 좁아도 교집합 자동 생성 없이 전체 신규 전송을 보류한다. 최소 네 필드 명시 동의가 필요하며 자유 서술/요약/계산/오류도 금지 자료를 우회 전송하지 못한다."
     violation: "PERMISSION_DENIED/POLICY_UNVERIFIED/POLICY_STALE; 동의 자동 확대/축소 금지"
     source: ["FR4.10"]
   - id: BR5.8

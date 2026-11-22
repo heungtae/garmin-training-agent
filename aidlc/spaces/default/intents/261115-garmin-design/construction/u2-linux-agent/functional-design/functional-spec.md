@@ -25,7 +25,7 @@ C01의 Common/C03~C08·schema/fixture digest는 설치본의 신뢰한 배포와
 ### F01 — 설치·초기 설정·제거
 
 1. 지원 환경/권한/필요 경로·도구를 확인하고 불충분 항목을 한국어로 안내한다. 실제 설치·로그아웃 실행 시험은 이 문서의 완료 사실이 아니다.
-2. CLI로 인증 참조·최초 수집 기간/범위·저장 대상·독립 주기·IANA 시간대·Calendar 기본 시각·서비스별 공유 및 보존 선택을 받는다. 비밀 값은 조회/문서/로그에 노출하지 않는다.
+2. CLI로 인증 참조·최초 수집 기간/범위·등록 연결 connectionIds와 별도 분석 게시 선택 analysisTargets·계획 수신 planInboxConnectionId·독립 주기·IANA 시간대·Calendar 기본 시각·서비스별 공유 및 보존 선택을 받는다. 비밀 값은 조회/문서/로그에 노출하지 않는다.
 3. RuntimeConfiguration 후보 전체와 기대 개정을 검증한다. 비밀 보호 기술·예약 실행 수단·물리 저장은 NFR에서 선정하며 미해소 실행 프로필은 활성화하지 않는다.
 4. 유효 후보만 새 개정으로 로컬 확정한 뒤 목적별 예약 등록 결과를 확인한다. 실패 시 기존 유효본과 예약 상태를 보존하고 불일치를 숨기지 않는다.
 5. 제거는 MaintenanceRequest의 확인된 제거 범위로 예약 신규 실행을 중단한 뒤 진행 중 작업/미확인 효과를 보존한다. 데이터 삭제는 별도 범위 확인과 소유자 결과가 필요하다. 원격 잔존/복구를 보장하지 않는다.
@@ -59,7 +59,7 @@ C01의 Common/C03~C08·schema/fixture digest는 설치본의 신뢰한 배포와
 1. 확정 ActivityRecord의 정확한 개정 집합·사용자 시간대·기준시각을 고정한다. 갱신 중인 입력을 섞지 않는다.
 2. 최근 7/28/90일, ISO 월요일 주, 달력 월/연 범위를 시작 포함·끝 제외로 계산한다. 최근 기간은 기준 현지 날짜 D에서 [D-(N-1),D+1)이다. 기준시각 이후의 당일은 아직 수집할 수 없음을 표시한다.
 3. 운동 UTC 순간을 사용자 시간대의 날짜로 변환해 종목별로 배정한다. 같은 ID는 단일 입력이며 unknown은 별도다. Decimal 원값으로 합산하고 분모 0/누락/미수집/해당 없음/추정을 전파한다.
-4. wire 원값은 정확 십진 문자열을 유지한다. 사람용 표시만 half-even 소수 2자리 반올림하며 단위/계산/차이와 원값을 대조할 수 있게 한다. 이 결정은 의료 한계값이 아니다.
+4. [GTA-NUMERIC-1](../../../inception/contract-design/contract-summary.md#numeric-profile-v1)에 따라 원천·정확 합계와 유리수 중간값을 보존하고 파생 속도/페이스만 최종 소수부 6자리 HALF_EVEN의 wire 정규형으로 만든다. calculationBasis에 프로필·수식·원천 개정·단위·최종 반올림/정확 합계 근거를 연결한다. 사람용 소수 2자리 표시와 wire를 구분하고 원천에서 재계산해 정확 대조한다. NUM-01~16을 소비자별 고정 기대값으로 사용한다. 이 규칙은 의료 한계값이 아니다.
 5. 원천 completeness·missingPeriods·수집시각·생성시각·입력 개정·명세를 포함한 로컬 원 분석을 확정한다. EMPTY는 성공적 수집 0건, NEVER_COLLECTED는 미수집·sourceCollectedAt=null·missingPeriods=[period]로 구별한다.
 6. F06에서 실제 경로의 동일 공유 집합을 확인하고 대상별 투영을 만든다. 투영 변경은 새 snapshotId/digest이며 sourceSnapshotRef로 계보를 연결한다.
 7. INLINE은 루트 activities 전체와 Detail 없음, PARTITIONED는 루트 activities=[]·등록 Detail들만 사용한다. N/연속 index/개수/유일 ID/계보·기간·정렬·Decimal 요약을 검사한다. 같은 날 조각 기간 겹침은 허용하되 같은 활동은 중복 금지다.
@@ -70,7 +70,7 @@ C01의 Common/C03~C08·schema/fixture digest는 설치본의 신뢰한 배포와
 
 ### F05 — GitHub/Drive 독립 게시·충돌·결과 미확인
 
-1. 유효 설정에서 활성 분석 대상만 선택하고 F06 현재 권한/비공개·동의/실제 경로를 확인한다. 유효 대상이 없으면 로컬 보존과 외부 미게시를 표시한다.
+1. 유효 설정의 analysisTargets에서 저장 연결과 최종 독자 경로를 선택하고 F06 현재 권한/비공개·동의/실제 경로를 확인한다. connectionIds나 동의 존재로 대상을 자동 활성화하지 않는다. 빈 선택이면 로컬 보존·분석 외부 미게시이며 planInboxConnectionId는 유지한다. 선택된 경로의 검증 실패는 정상적인 빈 선택으로 숨기지 않고 차단 이유를 표시한다.
 2. 대상별 RepositoryPublication에 로컬 확정 분석·정책 개정·고정 객체/경로·기대 digest와 의도를 확정한다. 로컬 확정 실패면 신규 외부 요청을 보내지 않는다.
 3. P01/P02의 현재 원격 내용/버전을 대조한다. 기존 사용자 수정/삭제/소유 불명은 RepositoryConflict로 보류한다. GitHub 갱신은 읽은 blob SHA, Drive는 전후 metadata와 실제 blob을 대조한다.
 4. 새 효과 요청 후 실제 원격 내용/버전/digest를 재확인해야 해당 대상 SUCCESS다. 응답 유실은 OUTCOME_UNKNOWN이며 같은 경로/객체·원 의도로 조회한다.
@@ -82,7 +82,7 @@ C01의 Common/C03~C08·schema/fixture digest는 설치본의 신뢰한 배포와
 ### F06 — 동의·비밀·보존과 전송 경계
 
 1. 설정 시 서비스/목적/대상별 필요한 필드를 설명하고 명시 동의를 확인한다. analysis.metadata는 불투명 계보·수집/생성시각·범위·운동/조각 개수도 드러냄을 알린다. activity.date는 정확한 시각/오프셋 공개다.
-2. 새 전송 직전 실제 연결 설정에서 모든 경로를 구하고 각 (service,purpose,targetAlias)의 유일 grant·원 정책/사용자/현재성/철회·전체 C04 digest를 검증한다. payload가 경로를 누락해 검사를 생략하지 못한다.
+2. 새 전송 직전 신뢰된 analysisTargets와 실제 도구 경로에서 저장소 DIRECT_SERVICE·모든 chatgpt FINAL_READER를 구한다. SharingConsent.connectionId를 통해 C04 (serviceName→service,purpose,targetReference→targetAlias)의 유일 grant와 주체/원 개정/현재성/철회·전체 digest를 검증한다. Drive와 ChatGPT는 별도 원 동의다. chatgpt에는 Linux 호출 어댑터/비밀/endpoint/model을 등록하지 않으며 실제 독자 경로 증거가 없으면 UNQUALIFIED다. payload의 경로 누락·다른 서비스 위장·계정/대상 혼동으로 검사를 생략하지 못한다.
 3. C03의 각 실제 ANALYSIS 경로 허용 9개 필드 집합을 ASCII 정렬해 projection과 정확히 대조한다. 더 넓거나 좁아도 전체 신규 전송을 보류하고 경로별 차이를 안내한다. 사용자 정책 변경 후 새 정책 digest/투영/snapshotId로 다시 검사한다.
 4. 최소 analysis.metadata/summary.period/activity.date/activity.sport 중 하나라도 거부면 C03 전체 전송을 보류한다. 나머지 미허용 지표는 fixed slot의 withheld+quantity/sourceRef/calculationBasis=null이다.
 5. pace/speed는 intensity·distance·duration 모두 허용되어야 하며 heartRate는 별도다. summary.totals는 개별 비공개 지표를 공개하지 않는다. 민감 별도 동의가 있어도 미등록 GPS/FIT/수면/HRV/통증을 extension에 넣지 않는다.
@@ -94,7 +94,7 @@ C01의 Common/C03~C08·schema/fixture digest는 설치본의 신뢰한 배포와
 
 ### F07 — Drive 수신·승인·안전·불변 스냅샷과 계보
 
-1. PLAN_CHECK는 적격 P01 읽기 권한/등록 별칭에서 후보 C05/C06/C07을 발견한다. 이름/수정시각만으로 최신 승인을 선택하지 않는다. 같은 고정 참조/내용은 기존 수신에 연결한다.
+1. PLAN_CHECK는 별도로 선택한 planInboxConnectionId의 drive DIRECT_SERVICE와 적격 P01 읽기 권한/등록 별칭에서 후보 C05/C06/C07을 발견한다. null이면 수신 경로 미설정으로 보류한다. Drive 분석 게시 비활성화는 이 선택을 바꾸지 않는다. 이름/수정시각만으로 최신 승인을 선택하지 않는다. 같은 고정 참조/내용은 기존 수신에 연결한다.
 2. metadata-before→blob→metadata-after를 읽고 원격 versionRef·MIME·바이트/깊이·엄격 파싱·등록 schema·전체 JCS digest를 대조해 ReceivedPlanArtifact에 로컬 보존한다. 실패는 기존 검증본을 유지한다.
 3. C05 목표/기간/주차/날짜/세션·휴식/단위/강도/수행내용과 모든 참조를 의미 검사한다. 기간 밖/중복/0시간·음수/모호 시각/누락/부분 작성·버전 혼합은 계획 전체를 보류한다.
 4. C06의 선언·digest/정책/단일 허용 행위가 맞아도 독립 적격 검증기가 실제 사용자·전체 내용·명시적 인간 의도·정책·현재 계보/철회 CLEAR를 확인해야 한다. 지금은 적격 승인 프로필이 없으므로 자동 게시 가능 근거를 만들지 못한다.
@@ -212,6 +212,8 @@ SharingConsent는 철회 시 withdrawnAt과 새 개정으로 새 전송을 막�
 ```mermaid
 erDiagram
   RuntimeConfiguration }o--o{ ServiceConnection : connectionIds
+  RuntimeConfiguration }o--o{ ServiceConnection : analysisTargets
+  RuntimeConfiguration }o--o| ServiceConnection : planInboxConnectionId
   ScheduleRegistration }o--|| RuntimeConfiguration : configurationId
   ExecutionRecord }o--o| ScheduleRegistration : scheduleId
   ServiceConnection }o--o| CredentialReference : credentialReferenceId
@@ -349,7 +351,7 @@ erDiagram
 | U2-S12 | F03 | 수영·unknown 운동과 미지원 단위 | 종목 분리·미지원 사유·러닝 치환 없음 | BR2.6 BR2.7 |
 | U2-S13 | F03 | observed 0/missing/not_collected/estimated 혼합 | 상태·근거 유지, 미수집을 미운동/0으로 확정하지 않음 | BR2.7 BR2.9 |
 | U2-S14 | F04 | 최근7/28/90일·주/월/연·윤일/연말 경계 | 시작 포함/끝 제외·동일 입력 단일 배정·시간대/기준시각 표시 | BR4.2 |
-| U2-S15 | F04 | distance=0 또는 duration=0 | pace/speed 해당 없음·quantity=null; NaN/Infinity 없음 | BR4.6 |
+| U2-S15 | F04 | distance=0 또는 duration=0 | distance=0이면 pace는 not_applicable·quantity=null이며 duration>0인 speed는 computed·0 m/s. duration=0이면 speed는 not_applicable·quantity=null이며 distance>0인 pace는 computed·0 s/km. 둘 다 0이면 둘 다 not_applicable·quantity=null. NaN/Infinity 없음 | BR4.6 |
 | U2-S16 | F04 | 종목별 Decimal 합계·반올림 부분합 차이 | 원값 정확 합산·표시 반올림 근거·차이 설명; 종목 혼합 없음 | BR4.7 BR4.8 BR10.2 |
 | U2-S17 | F04 | 한 운동 개정 후 상세/기간 연결 소실 | 불일치·갱신 필요 표시, 원천/이전 유효본 삭제 없음 | BR4.1 BR4.4 BR4.5 |
 | U2-S18 | F04 | PARTITIONED 두 Detail 정상 | 고정 버전/hash/계보/개수/정렬/합계 확인 후만 COMPLETE 유지 | BR10.1 BR10.2 |
@@ -399,12 +401,21 @@ erDiagram
 | U2-S62 | F11 | 429 Retry-After가 실행 제한 초과·반복 예약 | 이번 실행 종료/대기 보존, 기간별 호출/비용 예산 유지·무한 반복 없음 | BR2.8 BR8.6 |
 | U2-S63 | F12 | 합성 비밀 표식·제어문자·민감 수치 포함 오류 | 고정 한국어 오류/조치만 제공·표식/민감 원문 외부 출력 0건 기대 | BR1.8 BR4.10 BR7.9 |
 | U2-S64 | F07 | instruction/파일명에 셸 실행·허용 루트 이탈·비밀 요청 | 데이터로 보존/거절; 실행/임의 경로 접근/권한 확대 0건 기대 | BR7.9 |
+| U2-S65 | F01/F05/F07 | GitHub만 analysisTargets에 선택, Drive는 planInboxConnectionId로 유지 | 조회·저장·재시작 후 분석 쓰기는 GitHub만, Drive 계획 확인은 유지; 등록 목록으로 Drive 분석을 활성화하지 않음 | BR1.2 BR3.2 |
+| U2-S66 | F05 | GitHub/Drive 각각 선택하고 실제 독자까지 동일 공개 집합 동의 | 각각 검사·독립 게시·대상별 결과; 한 대상 실패는 다른 성공을 취소하지 않음 | BR3.2 BR3.4 BR4.10 |
+| U2-S67 | F05/F07 | analysisTargets=[] 및 유효 Drive 계획 수신 선택 | 로컬 보존·분석 외부 쓰기 0건·계획 확인 유지, 외부 미게시 사유가 재시작 후 동일 | BR3.2 BR1.2 |
+| U2-S68 | F05/F11 | Drive 분석 비활성화·이전 미확인 의도 존재·계획 수신 유지 | 새 분석 쓰기/재시도 0건; 허용된 읽기 대조와 과거 결과 보존·계획 확인 유지; 자동 원격 삭제 없음 | BR3.2 BR3.5 BR1.7 |
+| U2-S69 | F06 | drive/chatgpt 별도 연결·동일 주체·각 ANALYSIS 원 동의 | 두 유일 C04 튜플·전체 정책 digest와 실제 경로가 일치하면 문서상 허용 후보. 실제 정책 현재성/도구 적격성 성공을 모의 결과로 주장하지 않음 | BR4.10 |
+| U2-S70 | F06 | Drive만 동의/철회 또는 ChatGPT만 동의/철회를 각각 주입 | 누락/철회된 어느 경로든 해당 전체 신규 전송 차단; 서비스 간 동의 대체·자동 확대 없음 | BR4.10 |
+| U2-S71 | F01/F06 | chatgpt를 drive/openai로 위장·FINAL_READER에 비밀/endpoint 등록·실제 독자 누락 | 설정 또는 정책 검증 거절·신규 전송 0건; 역할을 API 실행 권한으로 승격하지 않음 | BR1.2 BR4.10 |
+| U2-S72 | F04 | U1 GTA-NUMERIC-1 NUM-01~16과 수신값/근거 불일치 | 고정 수치/오류 기대값 전수 일치; 다른 wire·근거 누락 거절; 실제 구현 부합은 미실행 | BR4.8 BR2.7 |
+| U2-S73 | F01 | 중복 저장 대상·미등록/잘못된 역할·동일 C04 튜플 중복·새 선택 속성 없는 이전 설정 | 무효 후보 거절·이전 유효본/자료 보존. 이전 설정에서 활성 대상을 추정하지 않고 명시적 선택 보완 전 새 분석 전송 보류 | BR1.2 BR3.2 BR4.10 |
 
 기존 공통 계약의 54개 schema 사례·23개 공유/상세 의미 사례·7개 엄격 파싱 사례는 변형하지 않고 재검사 대상으로 이어받는다. C03 실제 경로 허용 집합 동일성·최소 메타데이터 동의·withheld·등록 Detail 완전성 규칙을 위 합성 기대값과 함께 유지한다.
 
 ## 검증 범위와 미해소 조건
 
-문서 검증은 YAML/JSON·25개 원 소유 모델/속성·참조/카디널리티·66개 실제 배정 FR와 70개 BR/source/target·로컬 링크·문자/공백·제한 ER 문법의 정합성이다. 기존 공통 합성 의미/구조 검사는 계약 명세와 기존 검사기로 수행할 수 있다. 이 단계의 새 64개 기대 사례는 실행 시험으로 표시하지 않는다.
+문서 검증은 YAML/JSON·25개 원 소유 모델/속성·참조/카디널리티·66개 실제 배정 FR와 70개 BR/source/target·로컬 링크·문자/공백·제한 ER 문법의 정합성이다. 기존 공통 합성 의미/구조 검사는 계약 명세와 기존 검사기로 수행할 수 있다. U2-S01~73의 설계 기대값은 제품 실행 시험으로 표시하지 않는다.
 
 | 미해소 항목 | 활성화 차단/후속 증거 |
 |---|---|
@@ -418,5 +429,5 @@ erDiagram
 | Ubuntu 설치·로그아웃/복귀·예약·물리 저장·비밀 보호·현재 시각/tzdb 적격·유한 Limits | NFR 선택 및 실제 환경 시험 필요. 논리 설계로 실측 완료 주장 금지 |
 | ChatGPT 환경별 읽기/쓰기·승인 전달 및 C08 노출/현재성 | U3/전체 인수 책임의 실제 지원 증거 필요; U2 자체 검증 필수 의존으로 끌어오지 않음 |
 
-미해소 항목은 기능 설계 미완성 표시 대신 명시적인 현재 차단 조건이다. 이 문서는 해당 조건을 승인/해결하거나 요구사항을 축소하지 않는다. 코드·설치·외부 계정/HTTP·의학적 타당성·실제 로그아웃 실행·제품 통합 인수는 수행하지 않았다.
+ChatGPT 원 동의의 모델 표현, 등록 연결과 목적별 선택의 분리, 반복소수 wire 규범은 위 모델/규칙으로 구체화했다. 표에 남은 승인·안전·실제 경로의 미결정은 전체 제품 구현의 선행조건이며 단순한 출시 후 점검으로 이연하지 않는다. 이 문서는 해당 조건을 승인/해결하거나 요구사항을 축소하지 않는다. 코드·설치·외부 계정/HTTP·의학적 타당성·실제 로그아웃 실행·제품 통합 인수는 수행하지 않았다.
 

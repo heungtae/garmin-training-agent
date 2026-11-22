@@ -17,7 +17,8 @@ value_types:
   Digest: "sha256: 및 소문자 64자리; 전체 JSON RFC8785 JCS"
   Period: "Common.Period: startInclusive/endExclusive/timezone; 시작<끝"
   Metric: "Common.Metric: state=observed/computed/estimated/missing/not_collected/not_applicable/withheld; quantity는 값 상태에만; observed는 sourceRef, computed는 sourceRef+calculationBasis, estimated는 calculationBasis; withheld는 세 필드 모두 null"
-  Quantity: "음수 아닌 십진 문자열+등록 단위 m, s, m/s, s/km, bpm, rpe, ratio, count; 계산은 Decimal로 정확히, NaN/Infinity 금지"
+  Quantity: "음수 아닌 십진 문자열+등록 단위 m, s, m/s, s/km, bpm, rpe, ratio, count; GTA-NUMERIC-1의 원천/정확 합계 30+18자리·유리수 중간값 256자리·속도/페이스 최종 6자리 HALF_EVEN·wire 정규형과 정확 대조; NaN/Infinity 금지"
+  AnalysisTargetSelection: "{storageConnectionId:Id, finalReaderConnectionIds:Set<Id>}; storage는 등록된 github/drive DIRECT_SERVICE 하나, reader는 등록된 chatgpt FINAL_READER 1개 이상. 모든 참조는 RuntimeConfiguration.connectionIds 안에 존재하며 실제 허용 도구 경로의 독자를 빠짐없이 표현한다. storageConnectionId별 유일하며 연결 존재/동의만으로 선택을 생성하지 않음"
   TimingPolicy: "Common.TimingPolicy 전체: policyId/policyRevision/calendarAlias/timezone/defaultLocalTime/tzdbVersion; 시간대·시각·대상 변경은 승인 영향 재검증"
   ArtifactRef: "Common.ArtifactRef 전체: storeAlias/objectId/versionRef/digest; 허용 별칭만, raw URL/경로 추적 금지"
   ActivityRevisionRef: "activityId+sourceRevision의 필수 쌍; 정확한 과거 개정까지 조회 가능. 단일 ID가 현재 개정으로 바뀌어도 참조 근거 불변"
@@ -62,13 +63,17 @@ entities:
       - {"name":"initialCollectionPeriod","type":"Period","required":true,"nullable":false,"unique":false,"references":null,"constraints":"startInclusive < endExclusive"}
       - {"name":"collectionInterval","type":"Duration","required":true,"nullable":false,"unique":false,"references":null,"constraints":"양수; 기본 PT1H; NFR 실행 프로필 지원 범위"}
       - {"name":"planCheckInterval","type":"Duration","required":true,"nullable":false,"unique":false,"references":null,"constraints":"양수; 기본 PT15M; 독립 변경"}
-      - {"name":"connectionIds","type":"Set<Id>","required":true,"nullable":false,"unique":false,"references":"ServiceConnection","constraints":"삭제 연쇄 없음; 정확한 식별자만 참조"}
+      - {"name":"connectionIds","type":"Set<Id>","required":true,"nullable":false,"unique":false,"references":"ServiceConnection","constraints":"등록 연결 목록이며 목적별 활성 선택/전송 동의를 뜻하지 않음; 삭제 연쇄 없음"}
+      - {"name":"analysisTargets","type":"Set<AnalysisTargetSelection>","required":true,"nullable":false,"unique":false,"references":null,"constraints":"목적=ANALYSIS의 명시적 활성 선택. 빈 집합은 로컬 보존·분석 외부 미게시. 저장소별 유일, 미등록/역할 불일치/독자 누락은 설정 거절"}
+      - {"name":"planInboxConnectionId","type":"Id","required":true,"nullable":true,"unique":false,"references":"ServiceConnection","constraints":"계획 수신 전용 drive DIRECT_SERVICE 선택. null이면 PLAN_CHECK 수신 보류; analysisTargets 변경으로 자동 해제/선택하지 않음"}
       - {"name":"calendarDefaults","type":"TimingPolicy","required":true,"nullable":false,"unique":false,"references":null,"constraints":"승인 C05 및 현재 C04와 동일; 기본 시각 미설정 시 게시 보류"}
       - {"name":"configurationRevision","type":"Id","required":true,"nullable":false,"unique":false,"references":null,"constraints":"검증된 변경마다 새 개정; 동시 갱신은 기대 개정 대조"}
       - {"name":"installationState","type":"Enum","required":true,"nullable":false,"unique":false,"references":null,"constraints":"설치 상태는 예약/외부 성공을 의미하지 않음","allowed_values":["INITIALIZED","READY","REMOVING","REMOVED"]}
     constraints: ["한 사용자/한 PC의 활성 설정은 하나","무효 후보는 유효본을 대체하지 않음"]
     relationships:
       - {"field":"connectionIds","target":"ServiceConnection","direction":"source_to_target","source_cardinality":"0..*","target_cardinality":"0..*","kind":"many_to_many"}
+      - {"field":"analysisTargets","target":"ServiceConnection","direction":"source_to_target","source_cardinality":"0..*","target_cardinality":"0..*","kind":"many_to_many"}
+      - {"field":"planInboxConnectionId","target":"ServiceConnection","direction":"source_to_target","source_cardinality":"0..*","target_cardinality":"0..1","kind":"many_to_one"}
   - name: ScheduleRegistration
     owner: OperationControl
     description: "목적별 예약 등록과 독립 중단/재개"
@@ -121,7 +126,8 @@ entities:
     identifier: connectionId
     attributes:
       - {"name":"connectionId","type":"Id","required":true,"nullable":false,"unique":"해당 엔티티 전체","references":null,"constraints":"원 소유 컴포넌트가 발급하며 수명 동안 불변"}
-      - {"name":"serviceName","type":"Enum","required":true,"nullable":false,"unique":false,"references":null,"constraints":"허용값 이외 거절","allowed_values":["garmin","github","drive","calendar","openai","local_private"]}
+      - {"name":"serviceName","type":"Enum","required":true,"nullable":false,"unique":false,"references":null,"constraints":"C04 service와 같은 이름으로 대응; chatgpt는 최종 독자 경로만 표현","allowed_values":["garmin","github","drive","chatgpt","calendar","openai","local_private"]}
+      - {"name":"connectionRole","type":"Enum","required":true,"nullable":false,"unique":false,"references":null,"constraints":"chatgpt는 FINAL_READER만, 다른 서비스는 DIRECT_SERVICE만. FINAL_READER는 Linux 호출 어댑터/실행 권한이 아님","allowed_values":["DIRECT_SERVICE","FINAL_READER"]}
       - {"name":"accountReference","type":"Id","required":true,"nullable":false,"unique":false,"references":null,"constraints":"로컬의 불투명 계정 별칭; 직접 식별정보 전송 금지"}
       - {"name":"targetReference","type":"Id","required":true,"nullable":false,"unique":false,"references":null,"constraints":"선택 저장소/폴더/캘린더 또는 API 대상 별칭"}
       - {"name":"credentialReferenceId","type":"Id","required":true,"nullable":true,"unique":false,"references":"CredentialReference","constraints":"삭제 연쇄 없음; 정확한 식별자만 참조"}
@@ -131,7 +137,7 @@ entities:
       - {"name":"endpointReference","type":"Id","required":true,"nullable":true,"unique":false,"references":null,"constraints":"등록된 신뢰 프로필 별칭; 원격 문서가 주소/검증기를 등록하지 못함"}
       - {"name":"modelReference","type":"Id","required":true,"nullable":true,"unique":false,"references":null,"constraints":"LLM에만 필요; 실제 지원 모델은 적격 확인 후 설정"}
       - {"name":"qualificationEvidence","type":"QualificationEvidence","required":true,"nullable":false,"unique":false,"references":null,"constraints":"실제 검증 범위/프로필/버전·처리 위치·비용/한도 참조; 합성 결과와 분리"}
-    constraints: ["serviceName+accountReference+targetReference는 유일","READY는 현재 권한과 목적별 적격성 재확인을 생략하지 않음"]
+    constraints: ["serviceName+accountReference+targetReference는 유일","활성 설정 안에서 같은 serviceName+targetReference가 다른 계정을 모호하게 가리키면 거절","chatgpt FINAL_READER는 credentialReferenceId/endpointReference/modelReference=null; 실제 독자 계정/도구 경로·주체 대응·현재성 증거 없으면 UNQUALIFIED","READY는 현재 권한과 목적별 적격성 재확인을 생략하지 않음"]
     relationships:
       - {"field":"credentialReferenceId","target":"CredentialReference","direction":"source_to_target","source_cardinality":"0..*","target_cardinality":"0..1","kind":"many_to_one"}
   - name: CredentialReference
@@ -161,7 +167,7 @@ entities:
       - {"name":"withdrawnAt","type":"Timestamp","required":true,"nullable":true,"unique":false,"references":null,"constraints":"UTC Z; 원천 활동 시각은 OffsetTimestamp 사용"}
       - {"name":"policyDigest","type":"Digest","required":true,"nullable":false,"unique":false,"references":null,"constraints":"C04 전체 JCS와 결합"}
       - {"name":"verificationEvidence","type":"VerificationEvidence","required":true,"nullable":false,"unique":false,"references":null,"constraints":"사용자·목적·대상·현재성·철회 검증; 외부 ACTIVE 문자열 불충분"}
-    constraints: ["connectionId+purpose별 현재 동의 최대 하나; C04 튜플 grant 유일","철회는 신규 전송 차단이며 기존 복사본 회수 보장 아님"]
+    constraints: ["connectionId+purpose별 현재 동의 최대 하나; 연결의 serviceName/purpose/targetReference를 C04 service/purpose/targetAlias로 그대로 대응하고 주체·원 개정·policyDigest를 결합","C04 튜플 grant 유일; Drive 동의와 ChatGPT 최종 독자 동의는 별도 행이며 합치거나 대체하지 않음","철회는 신규 전송 차단이며 기존 복사본 회수 보장 아님"]
     relationships:
       - {"field":"connectionId","target":"ServiceConnection","direction":"source_to_target","source_cardinality":"0..*","target_cardinality":"1","kind":"many_to_one"}
   - name: RetentionPolicy

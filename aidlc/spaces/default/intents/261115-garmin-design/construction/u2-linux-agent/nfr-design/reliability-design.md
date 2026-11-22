@@ -88,15 +88,19 @@ C03 INLINE은 activities 전체와 Detail 없음, PARTITIONED는 루트 activiti
 <a id="u2-r06"></a>
 ## U2-R06 — 정확 십진·기간·일정 시각
 
-대응: NFR5.7·NFR6.1·NFR6.2. 소유: AnalysisPublication(계산/기간), CalendarDelivery(일정 시각), 기능 모델/공유 규범 담당(미정 정밀도). 규칙: BR2.7·BR2.9·BR4.2·BR4.6~BR4.8·BR9.2·BR9.3·BR9.5·BR10.1·BR10.2.
+대응: NFR5.7·NFR6.1·NFR6.2. 소유: AnalysisPublication(계산/기간), CalendarDelivery(일정 시각), U1(고정 수치 규범), 후속 U2 개발/품질 담당(도구 부합). 규칙: BR2.7·BR2.9·BR4.2·BR4.6~BR4.8·BR9.2·BR9.3·BR9.5·BR10.1·BR10.2.
 
-bigdecimal0.4.11 후보는 십진 문자열 원값을 부동소수점 경유 없이 읽어 종목별 유일 입력을 정확 합산한다. 실제0/누락/미수집/해당 없음/추정/withheld를 보존하고 분모0을 NaN/Infinity·유효 성과로 만들지 않는다. 사람용 표시만 기존 half-even2자리와 차이 설명을 적용한다. 1024자리 자원 한도 초과는 보류한다. 반복 소수의 정확 wire 값/정밀도·종료 규범은 BigDecimal 선택으로 해소하지 않으며 해당 계산의 적격 판정을 보류한다.
+계산은 [GTA-NUMERIC-1](../../../inception/contract-design/contract-summary.md#numeric-profile-v1)을 그대로 구현한다. bigdecimal0.4.11 후보는 부동소수점 경유 없는 정확 입력·유한 합계에만 사용하고, 무제한 나눗셈이나 기본 정밀도에 파생값 결정을 맡기지 않는다. 원천 문자열/원 단위는 별도 원천 기록으로 보존한다. 입력과 정확 합계의 정수부 최대30자리·소수부 최대18자리를 검사하며 초과는 DATA_INVALID다. 합계는 6자리로 반올림하지 않는다. 일반 parser1024자리 상한은 이 더 엄격한 의미 범위를 넓히지 않는다.
+
+파생 계산은 입력을 정수 계수/10의 거듭제곱으로 바꿔 약분한 정확 유리수로 수행한다. 각 연산 전 분자/분모 각각 최대256자리 경계를 검사하고 초과는 RESOURCE_LIMIT로 보류한다. 속도=거리(m)/시간(s), 페이스=시간(s)×1000/거리(m)이며 반올림된 속도를 페이스 입력으로 쓰지 않는다. 최종 정확 유리수에만 한 번 10^6을 곱한 정수 몫q/나머지r을 구해 2r과 분모를 비교하고, 같으면 q 또는 q+1 중 짝수를 택하는 ROUND_HALF_EVEN을 적용한다. 이 정수 연산도 같은 자원 경계/실행 deadline을 지키며 검사를 큰 중간값 할당 뒤로 미루지 않는다. 정확 정수 연산 수단의 구현/부합은 후속 검증 대상이며 새 라이브러리는 선정하지 않는다.
+
+computed wire는 선행0·소수부 후행0·불필요한 소수점을 제거하되 1미만 정수부0을 유지하고 0은 "0"으로 만든다. 지수·음수0·NaN/Infinity를 금지하며 최종 정수부30자리 초과 또는 정확 양수가 최종6자리에서0으로 소실되면 DATA_INVALID다. 분모0은 not_applicable+quantity=null이며 observed/computed/estimated/missing/not_collected/not_applicable/withheld의7상태를 보존한다. 단위 불일치/미지원 수식·근거 누락도 DATA_INVALID다. calculationBasis에 프로필·수식·허용 원천 참조/개정·입력 단위·정확 합계/최종6자리 구분을 연결하고 숨긴 원천은 복사하지 않는다. 수신 수치와 단위는 허용 원천에서 재계산한 정규형 wire와 정확히 같아야 한다. 허용 오차0이며 수학적 반올림 오차 상한0.0000005를 수신 허용 오차로 쓰지 않는다. 사람용 half-even2자리/분:초 표시는 wire·digest·승인 내용을 바꾸지 않는다.
 
 chrono+chrono-tz0.10.4 후보와 실제 IANA_TZDB_VERSION·chrono 선택 버전/빌드를 manifest에 고정한다. 활동 원 오프셋·UTC 순간·사용자 IANA 날짜를 구별하고 최근7/28/90일은 기준 현지 날짜D의[D-(N-1),D+1), ISO 월요일 주·달력 월/연도는 시작 포함/끝 제외다. 미래/부분 당일/미수집을 표시하며 날짜 계산이 완전 수집 증거가 되지 않는다.
 
 Calendar는 승인 C05/C04와 현재 설정의 timingPolicy/tzdb를 대조한다. 세션 localTime 우선, null일 때 승인 내용에 결합한 기본 시각을 사용한다. 현지 시각이 단일 실제 순간이어야 하며 DST ambiguous/none·시각 불신은 BLOCKED다. 종료는 시작+expectedDuration의 경과 초이며 자동 시각 보정/이동을 하지 않는다. 신규 CREATE는 신뢰 현재 시각보다 엄격한 미래만 후보이고, 이전 미확인 효과의 대조는 U2-R03이 먼저다. 처분은 승인된 미래 영향만 처리한다.
 
-검증 설계: U2-S10·U2-S12~U2-S16·U2-S49~U2-S56에 종목/고유 ID·정확 유한 합산/분모0·반복 소수·자정/윤일/연말·DST/시각 경과를 비교한다. 정의된 계산/시간 기대 전부 일치, 미정 계산/시각을 적격으로 표시0건을 요구한다. 근거: [bigdecimal](https://docs.rs/bigdecimal/0.4.11/bigdecimal/), [chrono-tz](https://docs.rs/chrono-tz/0.10.4/chrono_tz/). 실제 tzdb/정밀도/상호운용은 미검증이다.
+검증 설계: U2-S10·U2-S12~U2-S16·U2-S49~U2-S56·U2-S72와 고정 NUM-01~NUM-16을 대조한다. 반복소수/절반 양방향 HALF_EVEN·정확 합계·분모0·양수 소실·원천 재계산과 잘못된 wire/단위·근거 필수 항목별 누락/원천 개정 변경을 포함한다. 정수부30/31자리·소수부18/19자리·중간 분자/분모256/257자리 경계를 각각 검사해 DATA_INVALID/RESOURCE_LIMIT를 구별한다. 자정/윤일/연말·DST/시각 경과도 기존대로 확인한다. 고정 수치/오류·시간 기대 전수 일치와 미검증 도구/시각의 적격 표시0건을 요구한다. 근거: [bigdecimal](https://docs.rs/bigdecimal/0.4.11/bigdecimal/), [chrono-tz](https://docs.rs/chrono-tz/0.10.4/chrono_tz/). 수치 규범은 확정되었으며 실제 계산 도구/tzdb/상호운용은 미검증이다.
 
 <a id="u2-r07"></a>
 ## U2-R07 — 확인된 평가 실패의 제한된 복귀

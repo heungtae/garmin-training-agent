@@ -142,4 +142,13 @@ Q1에 따라 예약 실행·서비스 관리자와 비밀 보호 경계를 먼�
 
 [Answer]: Looks correct
 
+## 현재 상류 입력 보완 — 2026-11-22
+
+위 질문/답변과 당시 제안은 역사 기록으로 보존한다. 현재 설계의 모델·계산 기준은 수정된 [기능 명세](../functional-design/functional-spec.md)·[엔티티](../functional-design/entities.md)·[기술 결정](../nfr-requirements/tech-stack-decisions.md)·[공유 계약](../../../inception/contract-design/contract-summary.md#numeric-profile-v1)을 따른다. 이 보완은 새 사용자 응답이나 승인 기록이 아니다.
+
+- chatgpt FINAL_READER와 독립 SharingConsent→C04 대응이 확정되었다. credentialReferenceId/endpointReference/modelReference=null이며 Linux 호출 어댑터/실행 권한이 아니다. 실제 독자 계정/도구 경로·주체 대응·정책 현재성은 별도 검증한다.
+- connectionIds는 등록, analysisTargets는 저장소/최종 독자별 분석 활성 선택, planInboxConnectionId는 별도 Drive 계획 수신 선택이다. 분석0개/Drive 분석 중단은 계획 수신 선택을 바꾸지 않는다. U2-S65~71·73으로 저장·재시작·독립 동의/철회·위장/누락을 검증한다.
+- GTA-NUMERIC-1은 원천/정확 합계 정수30+소수18자리·중간 유리수 분자/분모 각각256자리·속도/페이스 최종6자리 HALF_EVEN·wire 정규형 정확 대조로 확정되었다. 일반 parser1024자리 상한은 더 엄격한 의미 한도를 완화하지 않는다. BigDecimal 후보는 정확 입력/합계에만 사용하며 무제한 나눗셈/기본 정밀도로 파생값을 결정하지 않는다. U2-S72/NUM-01~16 및30/31·18/19·256/257 경계를 후속 실행한다.
+- 기존 OS/저장/성능/복구 선택을 유지한다. 과거의 세 모델 미정 문구는 현재 표현/수치 규범의 미정을 뜻하지 않는다. 실제 구현 부합·계산 도구/tzdb·외부 권한/승인·안전/현재성·공급자/비용 적격성은 여전히 미검증이며 관련 활성화 보류를 유지한다.
+
 

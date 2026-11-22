@@ -21,6 +21,8 @@
 
 25개 엔티티는 위에서 각각 한 번만 소유된다. 컴포넌트 간에는 식별자·정확한 불변 버전/결과 참조를 전달한다. 공통 SQLite 파일/HTTP 실행기/검사 라이브러리를 공유해도 도메인 공동 쓰기는 허용하지 않는다. OperationControl은 조정/기술적 공통 예산을 맡고 각 소유자의 성공을 대신 판정하지 않는다. CalendarDelivery→PlanAdmission 최종 판정 요청은 허용하지만 PlanAdmission→PlanEvaluation 역호출 순환을 추가하지 않는다. 시간 설정은 OperationControl이 전달하며 CalendarDelivery가 역호출로 바꾸지 않는다.
 
+OperationControl은 등록 connectionIds와 분석 선택 analysisTargets·Drive 계획 수신 planInboxConnectionId를 별도 개정/저장/복귀한다. 분석0개는 로컬 분석을 보존하며 외부 미게시이고 Drive 분석 해제가 계획 수신을 해제하지 않는다. AnalysisPublication은 선택된 저장소/모든 최종 독자, PlanAdmission은 계획 수신 선택만 소비한다. DataAccessPolicy는 chatgpt FINAL_READER의 credentialReferenceId/endpointReference/modelReference=null과 독립 SharingConsent→C04 service/purpose/targetAlias 대응을 소유한다. 최종 독자 역할을 Linux HTTP 어댑터/직접 실행 권한으로 만들지 않는다. 등록·선택·동의는 서로 대체 불가이며 실제 독자 경로/주체·정책 현재성 미입증은 보류한다.
+
 텍스트 실행도: 일반 CLI/시스템 타이머 → OperationControl → COLLECTION_SYNC의 ActivityCollection→AnalysisPublication 또는 PLAN_CHECK의 PlanAdmission→PlanEvaluation→CalendarDelivery. CalendarDelivery는 평가 근거를 PlanAdmission에 전달해 최종 판정을 얻는다. 모든 외부 요청 소유자는 DataAccessPolicy의 현재 근거와 OperationControl의 영속 예산 경계를 거친다. 이 호출은 프로세스 내부 논리 인터페이스이며 새 네트워크 서버가 아니다.
 
 | 논리 자원/경계 | 기술 관리/도메인 책임 | 실패 영향·격리·복귀 |
@@ -60,9 +62,9 @@
 | U2-TSD-07 | 시스템 timer+일반 UID oneshot·실행권5초·595+5초 종료; U2-L02·U2-C02 | 상주 조정자/사용자linger보다 권한/세션 경계를 명시; 실제 로그아웃/절전/종료상한 미검증 |
 | U2-TSD-08 | host-key systemd encrypted credential→읽기 전용 전달; U2-SEC01 | 평문/GUI키링 의존 배제, TPM은 필수 아님; root/계정/디스크반출·건강DB 암호화 보장 아님 |
 | U2-TSD-09 | Tokio/reqwest·영속 예약/nextAllowedAt·full jitter·정리 deadline; U2-P02·U2-R04 | 한도별 독립/무한 대기는 실행 상한 우회; 비양보 CPU는 제한 하위경계 필요 |
-| U2-TSD-10 | 엄격 parser/schema/JCS·정확 십진·IANA/tzdb·유한 자원; U2-SEC02·U2-C01·U2-R06 | 범용 Value/float/단순key sort만으로 충족 불가; 반복 소수/tzdb 실제 적격 보류 |
+| U2-TSD-10 | 엄격 parser/schema/JCS·GTA-NUMERIC-1·IANA/tzdb·유한 자원; U2-SEC02·U2-C01·U2-R06 | 범용 Value/float/기본 정밀도 나눗셈/단순key sort만으로 충족 불가; 실제 계산 도구/tzdb 적격 보류 |
 | U2-TSD-11 | 허용 필드 구조화 로컬 기록·한국어CLI·100ms RSS/고수위; U2-P04·U2-O01~U2-O03 | 원문 로그/원격 대시보드 배제; 누락/피크 입증 불가는 미검증, 기존 보존 선택 유지 |
-| U2-TSD-12 | 승인/안전/현재성·외부 API/비용·세 모델 위험 보류; U2-O04 | 파일/해시/대역·추가PC 승인으로 해소 불가; 실제 담당별 적격 증거 필요 |
+| U2-TSD-12 | 승인/안전/현재성·외부 API/비용·확정 모델/수치 규범의 실제 부합 보류; U2-O04 | 모델 표현/수치 규범 확정과 실제 적격은 별도; 파일/해시/대역·추가PC 승인으로 실제 담당별 증거 대체 불가 |
 
 ### 구현 후보 고정과 공식 근거
 
@@ -73,7 +75,7 @@
 | 엄격 JSON | serde_json1.0.154 | 중복 키가 소실되기 전 검사·String/UTF-8·후행/깊이 적합성 |
 | Schema | jsonschema0.62.0 | Draft2020-12·format·고정 registry/등록참조·remote/file fetch 차단 |
 | 전체 digest | serde_jcs0.3.0·SHA-256 | UTF-16 속성 정렬/숫자/Unicode·고정 기대digest, 전체extension 포함 |
-| 십진 | bigdecimal0.4.11 | 문자열 원값/정확 유한합·자리 한계; 반복 소수 wire 규범 별도 보류 |
+| 십진 | bigdecimal0.4.11 | 정확 입력/유한합 전용·원천/합계30+18자리; 유리수 중간256자리/최종6자리 HALF_EVEN·wire 정확 대조는 U2-R06으로 별도 구현/검증, 기본 나눗셈 정밀도 금지 |
 | 시간대 | chrono+chrono-tz0.10.4 | 실제 chrono버전·IANA_TZDB_VERSION·승인 timingPolicy 대조/DST 경계 |
 
 위 버전은 제공된 Q&A가 확인한 문서 기준 후보다. 실제 선택 Rust toolchain/MSRV·feature·전이 의존 그래프·Cargo.lock·SQLite engine/source ID·tzdb·빌드 식별자를 후속 구현 manifest에 고정하고 통합 빌드/상호운용/경계 시험을 통과해야 한다. chrono의 새 버전이나 미정 SHA 구현의 임의 버전을 발명하지 않는다. 호환성 실패를 자동 최신화/암묵적 대체로 해소하지 않고 해당 선택의 근거/영향을 재검토한다. 이 단계는 패키지 설치/Cargo 파일/제품 코드 작성 없이 설계만 수행한다.
@@ -82,4 +84,4 @@
 
 ## 검증 책임과 한계
 
-후속 개발/품질 담당은 U2-S01~U2-S64의 해당 정상/오류/경계 대역과 U1 공통 고정 사례를 독립 실행한다. U2-L01의 소유/결과 흐름·U2-L02의 설정과 실제OS 대조, 각 NFR 문서의 지정 시험/증거를 확인한다. 현재는 Markdown/JSON의 ID·상류/anchor·소유/링크·표/UTF-8/공백·공식 추적 검사만 수행한다. 실제 제품 시험/설치/결제/외부 계정API·의료 안전 완료나 운영 실적을 주장하지 않는다.
+후속 개발/품질 담당은 U2-S01~U2-S73의 해당 정상/오류/경계 대역과 U1 공통 고정 사례/NUM-01~NUM-16을 독립 실행한다. U2-S65~71·73의 목적별 선택/등록·저장/재시작·독립 동의/위장/누락, U2-S72의 확정 수치 규범/근거·한도 부합을 포함한다. U2-L01의 소유/결과 흐름·U2-L02의 설정과 실제OS 대조, 각 NFR 문서의 지정 시험/증거를 확인한다. 현재는 Markdown/JSON의 ID·상류/anchor·소유/링크·표/UTF-8/공백·공식 추적 검사만 수행한다. 실제 제품 시험/설치/결제/외부 계정API·의료 안전 완료나 운영 실적을 주장하지 않는다.
