@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gta:contract:C04:1.0.0",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "policyId": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "policyRevision": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "subjectRef": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "issuedAt": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Timestamp"
+    },
+    "state": {
+      "enum": [
+        "ACTIVE",
+        "REVOKED"
+      ]
+    },
+    "timingPolicy": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/TimingPolicy"
+    },
+    "verificationRecordRef": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "grants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "enum": [
+              "chatgpt",
+              "github",
+              "drive",
+              "openai",
+              "local_private",
+              "calendar"
+            ]
+          },
+          "purpose": {
+            "enum": [
+              "ANALYSIS",
+              "PLAN_STORAGE",
+              "PLAN_EVALUATION",
+              "CALENDAR_PUBLICATION"
+            ]
+          },
+          "targetAlias": {
+            "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+          },
+          "allowedFieldPaths": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "activity.heartRate",
+                "analysis.metadata",
+                "activity.date",
+                "activity.sport",
+                "activity.distance",
+                "activity.duration",
+                "activity.intensity",
+                "summary.period",
+                "summary.totals",
+                "goal.target",
+                "goal.availability",
+                "plan.sessions",
+                "plan.explanation",
+                "workflow.status"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "sensitiveFieldPaths": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "activity.gps",
+                "activity.fit",
+                "recovery.sleep",
+                "recovery.hrv",
+                "feedback.pain"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "consentRecordRef": {
+            "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+          }
+        },
+        "required": [
+          "service",
+          "purpose",
+          "targetAlias",
+          "allowedFieldPaths",
+          "sensitiveFieldPaths",
+          "consentRecordRef"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "extensions": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Extensions"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "policyId",
+    "policyRevision",
+    "subjectRef",
+    "issuedAt",
+    "state",
+    "timingPolicy",
+    "verificationRecordRef",
+    "grants"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gta:contract:LLM_RESPONSE:1.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "choices": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "const": 0
+          },
+          "finish_reason": {
+            "const": "stop"
+          },
+          "message": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "const": "assistant"
+              },
+              "content": {
+                "type": "string",
+                "minLength": 1
+              },
+              "refusal": {
+                "type": "null"
+              },
+              "tool_calls": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "function_call": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "role",
+              "content"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "index",
+          "finish_reason",
+          "message"
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": [
+    "id",
+    "model",
+    "choices"
+  ],
+  "additionalProperties": true
+}

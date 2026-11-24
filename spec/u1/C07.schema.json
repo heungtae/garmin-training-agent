@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gta:contract:C07:1.0.0",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "requestId": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "subjectRef": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "planId": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "expectedVersionId": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "expectedPlanDigest": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Digest"
+    },
+    "action": {
+      "enum": [
+        "REPLACE",
+        "WITHDRAW",
+        "CANCEL_PUBLICATION"
+      ]
+    },
+    "replacementPlan": {
+      "anyOf": [
+        {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/ArtifactRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "impact": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "enum": [
+            "ALL_FUTURE",
+            "SELECTED_FUTURE"
+          ]
+        },
+        "sessionIds": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "scope",
+        "sessionIds"
+      ],
+      "additionalProperties": false
+    },
+    "policyDigest": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Digest"
+    },
+    "requestedAt": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Timestamp"
+    },
+    "extensions": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Extensions"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "requestId",
+    "subjectRef",
+    "planId",
+    "expectedVersionId",
+    "expectedPlanDigest",
+    "action",
+    "replacementPlan",
+    "impact",
+    "policyDigest",
+    "requestedAt"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "const": "REPLACE"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "replacementPlan": {
+            "$ref": "urn:gta:contract:common:1.0.0#/$defs/ArtifactRef"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "replacementPlan": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "impact": {
+            "properties": {
+              "scope": {
+                "const": "SELECTED_FUTURE"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "impact": {
+            "properties": {
+              "sessionIds": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "impact": {
+            "properties": {
+              "scope": {
+                "const": "ALL_FUTURE"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "impact": {
+            "properties": {
+              "sessionIds": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

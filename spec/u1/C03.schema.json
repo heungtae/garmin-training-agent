@@ -1,0 +1,361 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gta:contract:C03:1.0.0",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "snapshotId": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "sourceSnapshotRef": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "subjectRef": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "generatedAt": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Timestamp"
+    },
+    "sourceCollectedAt": {
+      "anyOf": [
+        {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "period": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Period"
+    },
+    "completeness": {
+      "enum": [
+        "COMPLETE",
+        "PARTIAL",
+        "EMPTY",
+        "NEVER_COLLECTED"
+      ]
+    },
+    "missingPeriods": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:gta:contract:common:1.0.0#/$defs/Period"
+      },
+      "minItems": 0
+    },
+    "summaryBySport": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SummaryBySport"
+      },
+      "minItems": 0
+    },
+    "activities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Activity"
+      },
+      "minItems": 0
+    },
+    "detailArtifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/DetailRef"
+      },
+      "minItems": 0
+    },
+    "extensions": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Extensions"
+    },
+    "documentType": {
+      "const": "ANALYSIS_MANIFEST"
+    },
+    "projection": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/AnalysisProjection"
+    },
+    "delivery": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "INLINE",
+            "PARTITIONED"
+          ]
+        },
+        "expectedPartCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "expectedActivityCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "mode",
+        "expectedPartCount",
+        "expectedActivityCount"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "snapshotId",
+    "sourceSnapshotRef",
+    "subjectRef",
+    "generatedAt",
+    "sourceCollectedAt",
+    "period",
+    "completeness",
+    "missingPeriods",
+    "summaryBySport",
+    "activities",
+    "detailArtifacts",
+    "documentType",
+    "projection",
+    "delivery"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Activity": {
+      "type": "object",
+      "properties": {
+        "activityId": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+        },
+        "sourceRevision": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+        },
+        "sport": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Sport"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "distance": {
+              "$ref": "urn:gta:contract:common:1.0.0#/$defs/Metric"
+            },
+            "duration": {
+              "$ref": "urn:gta:contract:common:1.0.0#/$defs/Metric"
+            },
+            "pace": {
+              "$ref": "urn:gta:contract:common:1.0.0#/$defs/Metric"
+            },
+            "speed": {
+              "$ref": "urn:gta:contract:common:1.0.0#/$defs/Metric"
+            },
+            "heartRate": {
+              "$ref": "urn:gta:contract:common:1.0.0#/$defs/Metric"
+            }
+          },
+          "required": [
+            "distance",
+            "duration",
+            "pace",
+            "speed",
+            "heartRate"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "activityId",
+        "sourceRevision",
+        "sport",
+        "startedAt",
+        "metrics"
+      ],
+      "additionalProperties": false
+    },
+    "SummaryBySport": {
+      "type": "object",
+      "properties": {
+        "sport": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Sport"
+        },
+        "activityCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "distance": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Metric"
+        },
+        "duration": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Metric"
+        }
+      },
+      "required": [
+        "sport",
+        "activityCount",
+        "distance",
+        "duration"
+      ],
+      "additionalProperties": false
+    },
+    "DetailRef": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/ArtifactRef"
+        },
+        "partIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "period": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Period"
+        },
+        "activityCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "artifact",
+        "partIndex",
+        "period",
+        "activityCount"
+      ],
+      "additionalProperties": false
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0.0"
+        },
+        "documentType": {
+          "const": "ANALYSIS_DETAIL"
+        },
+        "snapshotId": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+        },
+        "sourceSnapshotRef": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+        },
+        "subjectRef": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+        },
+        "projection": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/AnalysisProjection"
+        },
+        "rootPeriod": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Period"
+        },
+        "partIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "partCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "period": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Period"
+        },
+        "activities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Activity"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "documentType",
+        "snapshotId",
+        "sourceSnapshotRef",
+        "subjectRef",
+        "projection",
+        "rootPeriod",
+        "partIndex",
+        "partCount",
+        "period",
+        "activities"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "delivery": {
+            "properties": {
+              "mode": {
+                "const": "INLINE"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "detailArtifacts": {
+            "maxItems": 0
+          },
+          "delivery": {
+            "properties": {
+              "expectedPartCount": {
+                "const": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery": {
+            "properties": {
+              "mode": {
+                "const": "PARTITIONED"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "activities": {
+            "maxItems": 0
+          },
+          "detailArtifacts": {
+            "minItems": 1
+          },
+          "delivery": {
+            "properties": {
+              "expectedPartCount": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "expectedActivityCount": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

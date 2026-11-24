@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gta:contract:EVALUATION:1.0.0",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "evaluatedDigest": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Digest"
+    },
+    "assessment": {
+      "enum": [
+        "NO_FINDINGS",
+        "CAUTION",
+        "UNSUITABLE",
+        "INSUFFICIENT_DATA"
+      ]
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+      },
+      "minItems": 0
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "severity": {
+            "enum": [
+              "INFO",
+              "WARNING",
+              "BLOCKER"
+            ]
+          },
+          "ruleRef": {
+            "anyOf": [
+              {
+                "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+            },
+            "minItems": 0
+          },
+          "explanation": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "severity",
+          "ruleRef",
+          "evidenceRefs",
+          "explanation"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "proposedAdjustments": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "evaluatedDigest",
+    "assessment",
+    "evidenceRefs",
+    "findings",
+    "proposedAdjustments",
+    "assumptions",
+    "limitations"
+  ],
+  "additionalProperties": false
+}

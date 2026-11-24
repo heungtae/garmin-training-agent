@@ -1,0 +1,447 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gta:contract:C05:1.0.0",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "subjectRef": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "planId": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "versionId": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "previousPlanDigest": {
+      "anyOf": [
+        {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Digest"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "generatedAt": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Timestamp"
+    },
+    "authoringState": {
+      "const": "PROPOSAL"
+    },
+    "goal": {
+      "type": "object",
+      "properties": {
+        "goalId": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+        },
+        "goalRevision": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+        },
+        "sport": {
+          "const": "running"
+        },
+        "targetDistance": {
+          "anyOf": [
+            {
+              "$ref": "urn:gta:contract:common:1.0.0#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "targetTime": {
+          "anyOf": [
+            {
+              "$ref": "urn:gta:contract:common:1.0.0#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "objective": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetDate": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Date"
+        },
+        "availability": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "weekday": {
+                "enum": [
+                  "MO",
+                  "TU",
+                  "WE",
+                  "TH",
+                  "FR",
+                  "SA",
+                  "SU"
+                ]
+              },
+              "from": {
+                "$ref": "urn:gta:contract:common:1.0.0#/$defs/Time"
+              },
+              "to": {
+                "$ref": "urn:gta:contract:common:1.0.0#/$defs/Time"
+              }
+            },
+            "required": [
+              "weekday",
+              "from",
+              "to"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "weeklyFrequency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "fixedActivities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sport": {
+                "$ref": "urn:gta:contract:common:1.0.0#/$defs/Sport"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "date": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:gta:contract:common:1.0.0#/$defs/Date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "weekday": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "MO",
+                      "TU",
+                      "WE",
+                      "TH",
+                      "FR",
+                      "SA",
+                      "SU"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "from": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:gta:contract:common:1.0.0#/$defs/Time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "to": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:gta:contract:common:1.0.0#/$defs/Time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "sport",
+              "description",
+              "date",
+              "weekday",
+              "from",
+              "to"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0
+        }
+      },
+      "required": [
+        "goalId",
+        "goalRevision",
+        "sport",
+        "targetDistance",
+        "targetTime",
+        "objective",
+        "targetDate",
+        "availability",
+        "weeklyFrequency",
+        "fixedActivities",
+        "constraints"
+      ],
+      "additionalProperties": false
+    },
+    "period": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Period"
+    },
+    "policyDigest": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Digest"
+    },
+    "timingPolicy": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/TimingPolicy"
+    },
+    "sourceAnalysisRefs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:gta:contract:common:1.0.0#/$defs/ArtifactRef"
+      },
+      "minItems": 0
+    },
+    "weeklyObjectives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "weekStart": {
+            "$ref": "urn:gta:contract:common:1.0.0#/$defs/Date"
+          },
+          "objective": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "weekStart",
+          "objective"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+          },
+          "sessionVersionId": {
+            "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+          },
+          "date": {
+            "$ref": "urn:gta:contract:common:1.0.0#/$defs/Date"
+          },
+          "localTime": {
+            "anyOf": [
+              {
+                "$ref": "urn:gta:contract:common:1.0.0#/$defs/Time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sport": {
+            "const": "running"
+          },
+          "expectedDuration": {
+            "$ref": "urn:gta:contract:common:1.0.0#/$defs/Quantity"
+          },
+          "expectedDistance": {
+            "anyOf": [
+              {
+                "$ref": "urn:gta:contract:common:1.0.0#/$defs/Quantity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "intensity": {
+            "type": "object",
+            "properties": {
+              "basis": {
+                "enum": [
+                  "heart_rate",
+                  "pace",
+                  "speed",
+                  "rpe",
+                  "qualitative"
+                ]
+              },
+              "lower": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:gta:contract:common:1.0.0#/$defs/Quantity"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "upper": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:gta:contract:common:1.0.0#/$defs/Quantity"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "scaleRef": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "instruction": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "basis",
+              "lower",
+              "upper",
+              "scaleRef",
+              "instruction"
+            ],
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "basis": {
+                      "const": "rpe"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "scaleRef": {
+                      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "instructions": {
+            "type": "object",
+            "properties": {
+              "warmup": {
+                "type": "string",
+                "minLength": 1
+              },
+              "main": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cooldown": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "warmup",
+              "main",
+              "cooldown"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "sessionId",
+          "sessionVersionId",
+          "date",
+          "localTime",
+          "sport",
+          "expectedDuration",
+          "expectedDistance",
+          "intensity",
+          "instructions"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "restDates": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:gta:contract:common:1.0.0#/$defs/Date"
+      },
+      "uniqueItems": true
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0
+    },
+    "changeReason": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "extensions": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Extensions"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "subjectRef",
+    "planId",
+    "versionId",
+    "previousPlanDigest",
+    "generatedAt",
+    "authoringState",
+    "goal",
+    "period",
+    "policyDigest",
+    "timingPolicy",
+    "sourceAnalysisRefs",
+    "weeklyObjectives",
+    "sessions",
+    "restDates",
+    "assumptions",
+    "changeReason"
+  ],
+  "additionalProperties": false
+}
