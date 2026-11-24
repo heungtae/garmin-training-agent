@@ -1,0 +1,43 @@
+{
+  "schemas": [
+    {
+      "id": "urn:gta:contract:common:1.0.0",
+      "file": "common.schema.json"
+    },
+    {
+      "id": "urn:gta:contract:C01:1.0.0",
+      "file": "C01.schema.json"
+    },
+    {
+      "id": "urn:gta:contract:C02:1.0.0",
+      "file": "C02.schema.json"
+    },
+    {
+      "id": "urn:gta:contract:C03:1.0.0",
+      "file": "C03.schema.json"
+    },
+    {
+      "id": "urn:gta:contract:C04:1.0.0",
+      "file": "C04.schema.json"
+    },
+    {
+      "id": "urn:gta:contract:C05:1.0.0",
+      "file": "C05.schema.json"
+    },
+    {
+      "id": "urn:gta:contract:C06:1.0.0",
+      "file": "C06.schema.json"
+    },
+    {
+      "id": "urn:gta:contract:C07:1.0.0",
+      "file": "C07.schema.json"
+    },
+    {
+      "id": "urn:gta:contract:C08:1.0.0",
+      "file": "C08.schema.json"
+    }
+  ],
+  "fragments": [
+    "urn:gta:contract:C03:1.0.0#/$defs/Detail"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gta:contract:LLM_REQUEST:1.0.0",
+  "type": "object",
+  "properties": {
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "messages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "enum": [
+              "system",
+              "user"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "role",
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 2
+    },
+    "stream": {
+      "const": false
+    },
+    "store": {
+      "const": false
+    },
+    "max_tokens": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "max_completion_tokens": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    }
+  },
+  "required": [
+    "model",
+    "messages",
+    "stream"
+  ],
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "required": [
+        "max_tokens"
+      ],
+      "not": {
+        "required": [
+          "max_completion_tokens"
+        ]
+      }
+    },
+    {
+      "required": [
+        "max_completion_tokens"
+      ],
+      "not": {
+        "required": [
+          "max_tokens"
+        ]
+      }
+    }
+  ]
+}

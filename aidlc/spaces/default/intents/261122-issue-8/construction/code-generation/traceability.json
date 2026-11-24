@@ -1,0 +1,12 @@
+{
+  "stage": "code-generation",
+  "upstream_ids": ["BR7.4"],
+  "coverage": [
+    {
+      "id": "BR7.4",
+      "status": "OK",
+      "target": "tests/u1/test_contract_cases.py"
+    }
+  ],
+  "reverse": []
+}

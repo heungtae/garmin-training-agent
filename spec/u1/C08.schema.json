@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gta:contract:C08:1.0.0",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "receiptId": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "producerUnit": {
+      "enum": [
+        "U2",
+        "U3"
+      ]
+    },
+    "subjectRef": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "workId": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "stage": {
+      "enum": [
+        "STORE",
+        "RECEIVE",
+        "VALIDATE",
+        "EVALUATE",
+        "CALENDAR"
+      ]
+    },
+    "state": {
+      "enum": [
+        "SUCCESS",
+        "PARTIAL",
+        "PENDING",
+        "FAILED",
+        "OUTCOME_UNKNOWN",
+        "CONFLICT",
+        "BLOCKED"
+      ]
+    },
+    "targetDigest": {
+      "anyOf": [
+        {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Digest"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observedAt": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Timestamp"
+    },
+    "lastSuccessfulAt": {
+      "anyOf": [
+        {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sessionResults": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+          },
+          "state": {
+            "enum": [
+              "SUCCESS",
+              "PARTIAL",
+              "PENDING",
+              "FAILED",
+              "OUTCOME_UNKNOWN",
+              "CONFLICT",
+              "BLOCKED"
+            ]
+          },
+          "remoteReference": {
+            "anyOf": [
+              {
+                "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "sessionId",
+          "state",
+          "remoteReference"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:gta:contract:common:1.0.0#/$defs/Error"
+      },
+      "minItems": 0
+    },
+    "extensions": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Extensions"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "receiptId",
+    "producerUnit",
+    "subjectRef",
+    "workId",
+    "stage",
+    "state",
+    "targetDigest",
+    "observedAt",
+    "lastSuccessfulAt",
+    "sessionResults",
+    "errors"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "SUCCESS"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "errors": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "producerUnit": {
+            "const": "U3"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "stage": {
+            "const": "STORE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "FAILED",
+              "BLOCKED",
+              "CONFLICT",
+              "OUTCOME_UNKNOWN"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "errors": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

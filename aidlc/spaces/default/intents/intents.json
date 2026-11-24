@@ -6,5 +6,13 @@
     "scope": "classic",
     "status": "complete",
     "request": "0be5edd3"
+  },
+  {
+    "uuid": "01a20374-94ae-701c-aca1-95274fa4bb0b",
+    "slug": "issue-8",
+    "dirName": "261122-issue-8",
+    "scope": "express",
+    "status": "complete",
+    "request": "6424053e"
   }
 ]

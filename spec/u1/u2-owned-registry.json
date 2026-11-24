@@ -1,0 +1,16 @@
+{
+  "schemas": [
+    {
+      "id": "urn:gta:contract:LLM_REQUEST:1.0.0",
+      "file": "LLM_REQUEST.schema.json"
+    },
+    {
+      "id": "urn:gta:contract:LLM_RESPONSE:1.0.0",
+      "file": "LLM_RESPONSE.schema.json"
+    },
+    {
+      "id": "urn:gta:contract:EVALUATION:1.0.0",
+      "file": "EVALUATION.schema.json"
+    }
+  ]
+}

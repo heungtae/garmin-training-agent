@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gta:contract:C01:1.0.0",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "releaseId": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+    },
+    "createdAt": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Timestamp"
+    },
+    "commonDigest": {
+      "$ref": "urn:gta:contract:common:1.0.0#/$defs/Digest"
+    },
+    "contracts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "contractId": {
+            "enum": [
+              "C03",
+              "C04",
+              "C05",
+              "C06",
+              "C07",
+              "C08"
+            ]
+          },
+          "schemaId": {
+            "type": "string",
+            "format": "uri"
+          },
+          "schemaDigest": {
+            "$ref": "urn:gta:contract:common:1.0.0#/$defs/Digest"
+          },
+          "fixturesDigest": {
+            "$ref": "urn:gta:contract:common:1.0.0#/$defs/Digest"
+          }
+        },
+        "required": [
+          "contractId",
+          "schemaId",
+          "schemaDigest",
+          "fixturesDigest"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 6
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "releaseId",
+    "createdAt",
+    "commonDigest",
+    "contracts"
+  ],
+  "additionalProperties": false
+}

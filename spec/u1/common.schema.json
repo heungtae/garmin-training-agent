@@ -1,0 +1,630 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gta:contract:common:1.0.0",
+  "$defs": {
+    "Id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "Date": {
+      "type": "string",
+      "format": "date"
+    },
+    "Time": {
+      "type": "string",
+      "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+    },
+    "Timezone": {
+      "type": "string",
+      "minLength": 1
+    },
+    "Digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "Sport": {
+      "enum": [
+        "running",
+        "swimming",
+        "cycling",
+        "strength",
+        "other",
+        "unknown"
+      ]
+    },
+    "Quantity": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "pattern": "^(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+        },
+        "unit": {
+          "enum": [
+            "m",
+            "s",
+            "m/s",
+            "s/km",
+            "bpm",
+            "rpe",
+            "ratio",
+            "count"
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "additionalProperties": false
+    },
+    "Period": {
+      "type": "object",
+      "properties": {
+        "startInclusive": {
+          "$ref": "#/$defs/Date"
+        },
+        "endExclusive": {
+          "$ref": "#/$defs/Date"
+        },
+        "timezone": {
+          "$ref": "#/$defs/Timezone"
+        }
+      },
+      "required": [
+        "startInclusive",
+        "endExclusive",
+        "timezone"
+      ],
+      "additionalProperties": false
+    },
+    "ArtifactRef": {
+      "type": "object",
+      "properties": {
+        "storeAlias": {
+          "$ref": "#/$defs/Id"
+        },
+        "objectId": {
+          "$ref": "#/$defs/Id"
+        },
+        "versionRef": {
+          "$ref": "#/$defs/Id"
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "storeAlias",
+        "objectId",
+        "versionRef",
+        "digest"
+      ],
+      "additionalProperties": false
+    },
+    "TimingPolicy": {
+      "type": "object",
+      "properties": {
+        "policyId": {
+          "$ref": "#/$defs/Id"
+        },
+        "policyRevision": {
+          "$ref": "#/$defs/Id"
+        },
+        "calendarAlias": {
+          "$ref": "#/$defs/Id"
+        },
+        "timezone": {
+          "$ref": "#/$defs/Timezone"
+        },
+        "defaultLocalTime": {
+          "$ref": "#/$defs/Time"
+        },
+        "tzdbVersion": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "policyId",
+        "policyRevision",
+        "calendarAlias",
+        "timezone",
+        "defaultLocalTime",
+        "tzdbVersion"
+      ],
+      "additionalProperties": false
+    },
+    "Limits": {
+      "type": "object",
+      "properties": {
+        "connectTimeoutMs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "requestTimeoutMs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "attemptLimit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "maxElapsedMs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "maxInputBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "maxOutputBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "requestBudget": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "connectTimeoutMs",
+        "requestTimeoutMs",
+        "attemptLimit",
+        "maxElapsedMs",
+        "maxInputBytes",
+        "maxOutputBytes",
+        "requestBudget"
+      ],
+      "additionalProperties": false
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "enum": [
+            "DATA_INVALID",
+            "VERSION_UNSUPPORTED",
+            "CONTENT_MISMATCH",
+            "SOURCE_INCOMPLETE",
+            "APPROVAL_UNVERIFIED",
+            "APPROVAL_PROFILE_UNQUALIFIED",
+            "POLICY_UNVERIFIED",
+            "POLICY_STALE",
+            "PERMISSION_DENIED",
+            "REMOTE_CONFLICT",
+            "RATE_LIMITED",
+            "TIMEOUT",
+            "OUTCOME_UNKNOWN",
+            "LLM_INVALID",
+            "SAFETY_BLOCKED",
+            "DEPENDENCY_UNQUALIFIED",
+            "RESOURCE_LIMIT"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workRef": {
+          "$ref": "#/$defs/Id"
+        },
+        "observedAt": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "fieldPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "suggestedAction": {
+          "enum": [
+            "RETRY_LATER",
+            "REAUTHENTICATE",
+            "CORRECT_DATA",
+            "REVIEW_CONFLICT",
+            "QUALIFY_DEPENDENCY",
+            "RECONCILE_REMOTE",
+            "RECONFIRM_APPROVAL",
+            "NONE"
+          ]
+        }
+      },
+      "required": [
+        "code",
+        "retryable",
+        "message",
+        "workRef",
+        "observedAt",
+        "fieldPath",
+        "suggestedAction"
+      ],
+      "additionalProperties": false
+    },
+    "Metric": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": [
+            "observed",
+            "computed",
+            "estimated",
+            "missing",
+            "not_collected",
+            "not_applicable",
+            "withheld"
+          ]
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sourceRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "calculationBasis": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "state",
+        "quantity",
+        "sourceRef",
+        "calculationBasis"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "observed",
+                  "computed",
+                  "estimated"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "quantity": {
+                "$ref": "#/$defs/Quantity"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "quantity": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "observed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "sourceRef": {
+                "$ref": "#/$defs/Id"
+              },
+              "calculationBasis": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "computed",
+                  "estimated"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "calculationBasis": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "computed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "sourceRef": {
+                "$ref": "#/$defs/Id"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "withheld"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "quantity": {
+                "type": "null"
+              },
+              "sourceRef": {
+                "type": "null"
+              },
+              "calculationBasis": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Extensions": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^x_[a-z0-9_]{1,64}$"
+      },
+      "additionalProperties": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    "VerificationResult": {
+      "type": "object",
+      "properties": {
+        "verdict": {
+          "enum": [
+            "VERIFIED",
+            "UNQUALIFIED",
+            "REJECTED",
+            "UNAVAILABLE"
+          ]
+        },
+        "verifiedSubjectRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "verifiedDigest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "verifiedActions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "PUBLISH_PLAN",
+              "REPLACE_PLAN",
+              "WITHDRAW_PLAN",
+              "CANCEL_PUBLICATION",
+              "SHARE_DATA"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "policyDigest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "issuerRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recordRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "verifiedAt": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "sourceStillCurrent": {
+          "type": "boolean"
+        },
+        "humanIntentBound": {
+          "type": "boolean"
+        },
+        "revocationState": {
+          "enum": [
+            "CLEAR",
+            "REVOKED",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "required": [
+        "verdict",
+        "verifiedSubjectRef",
+        "verifiedDigest",
+        "verifiedActions",
+        "policyDigest",
+        "issuerRef",
+        "recordRef",
+        "verifiedAt",
+        "sourceStillCurrent",
+        "humanIntentBound",
+        "revocationState"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "verdict": {
+                "const": "VERIFIED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "verifiedSubjectRef": {
+                "$ref": "#/$defs/Id"
+              },
+              "verifiedDigest": {
+                "$ref": "#/$defs/Digest"
+              },
+              "policyDigest": {
+                "$ref": "#/$defs/Digest"
+              },
+              "issuerRef": {
+                "$ref": "#/$defs/Id"
+              },
+              "recordRef": {
+                "$ref": "#/$defs/Id"
+              },
+              "sourceStillCurrent": {
+                "const": true
+              },
+              "humanIntentBound": {
+                "const": true
+              },
+              "revocationState": {
+                "const": "CLEAR"
+              },
+              "verifiedActions": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "AnalysisProjection": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "enum": [
+            "chatgpt",
+            "github",
+            "drive",
+            "openai",
+            "local_private"
+          ]
+        },
+        "purpose": {
+          "const": "ANALYSIS"
+        },
+        "targetAlias": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Id"
+        },
+        "policyDigest": {
+          "$ref": "urn:gta:contract:common:1.0.0#/$defs/Digest"
+        },
+        "allowedFieldPaths": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "analysis.metadata",
+              "summary.period",
+              "activity.date",
+              "activity.sport",
+              "activity.distance",
+              "activity.duration",
+              "activity.intensity",
+              "activity.heartRate",
+              "summary.totals"
+            ]
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "service",
+        "purpose",
+        "targetAlias",
+        "policyDigest",
+        "allowedFieldPaths"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
